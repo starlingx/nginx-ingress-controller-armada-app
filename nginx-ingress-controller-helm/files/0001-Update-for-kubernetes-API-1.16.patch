@@ -1,0 +1,92 @@
+From 0d79e68c1e8a71c1b5dd37af553d3883098b55dc Mon Sep 17 00:00:00 2001
+From: Sabeel Ansari <Sabeel.Ansari@windriver.com>
+Date: Thu, 2 Apr 2020 13:32:15 -0400
+Subject: [PATCH 1/1] Update for kubernetes API 1.16
+
+---
+ stable/nginx-ingress/templates/controller-daemonset.yaml       | 6 +++++-
+ stable/nginx-ingress/templates/controller-deployment.yaml      | 6 +++++-
+ stable/nginx-ingress/templates/default-backend-deployment.yaml | 6 +++++-
+ stable/nginx-ingress/templates/podsecuritypolicy.yaml          | 2 +-
+ 4 files changed, 16 insertions(+), 4 deletions(-)
+
+diff --git a/stable/nginx-ingress/templates/controller-daemonset.yaml b/stable/nginx-ingress/templates/controller-daemonset.yaml
+index a05062e..c6e8271 100644
+--- a/stable/nginx-ingress/templates/controller-daemonset.yaml
++++ b/stable/nginx-ingress/templates/controller-daemonset.yaml
+@@ -1,5 +1,5 @@
+ {{- if eq .Values.controller.kind "DaemonSet" }}
+-apiVersion: extensions/v1beta1
++apiVersion: apps/v1
+ kind: DaemonSet
+ metadata:
+   labels:
+@@ -10,6 +10,10 @@ metadata:
+     release: {{ .Release.Name }}
+   name: {{ template "nginx-ingress.controller.fullname" . }}
+ spec:
++  selector:
++    matchLabels:
++      app: {{ template "nginx-ingress.name" . }}
++      release: {{ .Release.Name }}
+   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+   updateStrategy:
+ {{ toYaml .Values.controller.updateStrategy | indent 4 }}
+diff --git a/stable/nginx-ingress/templates/controller-deployment.yaml b/stable/nginx-ingress/templates/controller-deployment.yaml
+index 7d78507..f653c8a 100644
+--- a/stable/nginx-ingress/templates/controller-deployment.yaml
++++ b/stable/nginx-ingress/templates/controller-deployment.yaml
+@@ -1,5 +1,5 @@
+ {{- if eq .Values.controller.kind "Deployment" }}
+-apiVersion: extensions/v1beta1
++apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   labels:
+@@ -10,6 +10,10 @@ metadata:
+     release: {{ .Release.Name }}
+   name: {{ template "nginx-ingress.controller.fullname" . }}
+ spec:
++  selector:
++    matchLabels:
++      app: {{ template "nginx-ingress.name" . }}
++      release: {{ .Release.Name }}
+   replicas: {{ .Values.controller.replicaCount }}
+   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+   strategy:
+diff --git a/stable/nginx-ingress/templates/default-backend-deployment.yaml b/stable/nginx-ingress/templates/default-backend-deployment.yaml
+index 93ea613..399b798 100644
+--- a/stable/nginx-ingress/templates/default-backend-deployment.yaml
++++ b/stable/nginx-ingress/templates/default-backend-deployment.yaml
+@@ -1,5 +1,5 @@
+ {{- if .Values.defaultBackend.enabled }}
+-apiVersion: extensions/v1beta1
++apiVersion: apps/v1
+ kind: Deployment
+ metadata:
+   labels:
+@@ -10,6 +10,10 @@ metadata:
+     release: {{ .Release.Name }}
+   name: {{ template "nginx-ingress.defaultBackend.fullname" . }}
+ spec:
++  selector:
++     matchLabels:
++       app: {{ template "nginx-ingress.name" . }}
++       release: {{ .Release.Name }}
+   replicas: {{ .Values.defaultBackend.replicaCount }}
+   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}
+   template:
+diff --git a/stable/nginx-ingress/templates/podsecuritypolicy.yaml b/stable/nginx-ingress/templates/podsecuritypolicy.yaml
+index 9222daf..b99aee8 100644
+--- a/stable/nginx-ingress/templates/podsecuritypolicy.yaml
++++ b/stable/nginx-ingress/templates/podsecuritypolicy.yaml
+@@ -1,5 +1,5 @@
+ {{- if .Values.podSecurityPolicy.enabled}}
+-apiVersion: extensions/v1beta1
++apiVersion: policy/v1beta1
+ kind: PodSecurityPolicy
+ metadata:
+   name: {{ template "nginx-ingress.fullname" . }} 
+-- 
+1.8.3.1
+
