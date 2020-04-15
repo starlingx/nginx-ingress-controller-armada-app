@@ -1,5 +1,0 @@
-maintain_user_overrides: true
-
-app_name: stx-nginx-ingress-controller
-helm_repo: stx-platform
-
