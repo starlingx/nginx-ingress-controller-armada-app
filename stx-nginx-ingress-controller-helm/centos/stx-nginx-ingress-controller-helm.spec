@@ -30,6 +30,8 @@ Source5: nginx_ingress_controller_manifest.yaml
 
 BuildArch: noarch
 
+BuildRequires: helm
+
 Patch01: 0001-Update-for-kubernetes-API-1.16.patch
 
 %description
