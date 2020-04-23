@@ -38,7 +38,7 @@ data:
         enabled: false
       service:
         type: ""
-        hostNetwork: true
+      hostNetwork: true
       livenessProbe:
         initialDelaySeconds: 30
       readinessProbe:
