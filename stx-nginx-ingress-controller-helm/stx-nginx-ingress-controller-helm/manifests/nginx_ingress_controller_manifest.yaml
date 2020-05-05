@@ -8,7 +8,7 @@ data:
   release: nginx-ingress
   namespace: kube-system
   wait:
-    timeout: 600
+    timeout: 1800
     labels:
       app: nginx-ingress
   install:
