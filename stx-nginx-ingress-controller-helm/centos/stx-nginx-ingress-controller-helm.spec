@@ -1,7 +1,7 @@
 # Application tunables (maps to metadata)
 %global app_name nginx-ingress-controller
 %global helm_repo stx-platform
-%global sha 92b6289ae93816717a8453cfe62bad51cbdb8ad0
+%global nginx_version 0.41.2
 
 %global armada_folder  /usr/lib/armada
 
@@ -14,14 +14,14 @@
 
 Summary: StarlingX Nginx Ingress Controller Application Armada Helm Charts
 Name: stx-nginx-ingress-controller-helm
-Version: 1.0
+Version: 1.1
 Release: %{tis_patch_ver}%{?_tis_dist}
 License: Apache-2.0
 Group: base
 Packager: Wind River <info@windriver.com>
 URL: unknown
 
-Source0: helm-charts-%{sha}.tar.gz
+Source0: helm-charts-ingress-nginx-%{nginx_version}.tar.gz
 Source1: repositories.yaml
 Source2: index.yaml
 Source3: Makefile
@@ -33,17 +33,11 @@ BuildArch: noarch
 BuildRequires: helm
 BuildRequires: chartmuseum
 
-Patch01: 0001-Update-for-kubernetes-API-1.16.patch
-Patch02: 0002-Update-nginx-ingress-chart-for-Helm-v3.patch
-
 %description
 StarlingX Nginx Ingress Controller Application Armada Helm Charts
 
 %prep
 %setup -n helm-charts
-
-%patch01 -p1
-%patch02 -p1
 
 %build
 # Host a server for the charts
@@ -52,9 +46,9 @@ sleep 2
 helm repo add local http://localhost:8879/charts
 
 # Create the tgz file
-cp %{SOURCE3} stable
-cd stable
-make nginx-ingress
+cp %{SOURCE3} charts
+cd charts
+make ingress-nginx
 cd -
 
 # Terminate helm server (the last backgrounded task)
@@ -69,7 +63,8 @@ mkdir -p %{app_staging}
 cp %{SOURCE4} %{app_staging}
 cp %{SOURCE5} %{app_staging}
 mkdir -p %{app_staging}/charts
-cp stable/*.tgz %{app_staging}/charts
+
+cp charts/*.tgz %{app_staging}/charts
 cd %{app_staging}
 
 # Populate metadata
