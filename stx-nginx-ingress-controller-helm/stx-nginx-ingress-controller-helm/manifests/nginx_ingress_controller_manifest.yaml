@@ -4,13 +4,13 @@ metadata:
   schema: metadata/Document/v1
   name: nginx-ingress
 data:
-  chart_name: ingress-nginx
+  chart_name: nginx-ingress
   release: nginx-ingress
   namespace: kube-system
   wait:
     timeout: 1800
     labels:
-      app.kubernetes.io/name: ingress-nginx
+      app: nginx-ingress
   install:
     no_hooks: false
   upgrade:
@@ -19,14 +19,11 @@ data:
       delete:
         - type: job
           labels:
-             app.kubernetes.io/name: ingress-nginx
+            app: nginx-ingress
   values:
     imagePullSecrets: [{"name": "default-registry-key"}]
     controller:
       kind: DaemonSet
-      image:
-        # cleans the default digest value since sysinv changes the digest when pushing the image to the local registry
-        digest: ""
       daemonset:
         useHostPort: false
       nodeSelector:
@@ -60,8 +57,8 @@ data:
         initialDelaySeconds: 30
   source:
     type: tar
-    location: http://172.17.0.1/helm_charts/stx-platform/ingress-nginx-3.10.1.tgz
-    subpath: ingress-nginx
+    location: http://172.17.0.1/helm_charts/stx-platform/nginx-ingress-1.4.0.tgz
+    subpath: nginx-ingress
     reference: master
   dependencies: []
 ---
