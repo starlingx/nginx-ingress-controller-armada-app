@@ -6,7 +6,7 @@
 # All Rights Reserved.
 #
 
-""" System inventory App lifecycle operator."""
+"""System inventory App lifecycle operator."""
 
 from k8sapp_nginx_ingress_controller.common import constants as app_constants
 from oslo_log import log as logging
@@ -18,7 +18,7 @@ LOG = logging.getLogger(__name__)
 
 class NginxIngressControllerAppLifecycleOperator(base.AppLifecycleOperator):
     def app_lifecycle_actions(self, context, conductor_obj, app_op, app, hook_info):
-        """ Perform lifecycle actions for an operation
+        """Perform lifecycle actions for an operation
 
         :param context: request context
         :param conductor_obj: conductor object
@@ -34,7 +34,8 @@ class NginxIngressControllerAppLifecycleOperator(base.AppLifecycleOperator):
                     return self.pre_etcd_backup(app_op)
 
         # Use the default behaviour for other hooks
-        super(NginxIngressControllerAppLifecycleOperator, self).app_lifecycle_actions(context, conductor_obj, app_op, app, hook_info)
+        super(NginxIngressControllerAppLifecycleOperator, self).app_lifecycle_actions(
+            context, conductor_obj, app_op, app, hook_info)
 
     def pre_etcd_backup(self, app_op):
         """Pre Etcd backup actions
@@ -46,7 +47,9 @@ class NginxIngressControllerAppLifecycleOperator(base.AppLifecycleOperator):
         label_selector = "app.kubernetes.io/name={}," \
                          "app.kubernetes.io/component={}"\
                          .format(app_constants.HELM_CHART_INGRESS_NGINX, "admission-webhook")
+        # pylint: disable=protected-access
         webhooks = app_op._kube.kube_get_validating_webhook_configurations_by_selector(label_selector, "")
         if webhooks:
             admission_webhook = webhooks[0].metadata.name
+            # pylint: disable=protected-access
             app_op._kube.kube_delete_validating_webhook_configuration(admission_webhook)
