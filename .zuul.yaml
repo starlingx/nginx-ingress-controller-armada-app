@@ -3,12 +3,94 @@
     check:
       jobs:
         - openstack-tox-linters
+        - k8sapp-nginx-ingress-controller-tox-py27
+        - k8sapp-nginx-ingress-controller-tox-py36
+        - k8sapp-nginx-ingress-controller-tox-flake8
+        - k8sapp-nginx-ingress-controller-tox-pylint
+        - k8sapp-nginx-ingress-controller-tox-bandit
     gate:
       jobs:
         - openstack-tox-linters
+        - k8sapp-nginx-ingress-controller-tox-py27
+        - k8sapp-nginx-ingress-controller-tox-py36
+        - k8sapp-nginx-ingress-controller-tox-flake8
+        - k8sapp-nginx-ingress-controller-tox-pylint
+        - k8sapp-nginx-ingress-controller-tox-bandit
     post:
       jobs:
         - stx-nginx-ingress-controller-armada-app-upload-git-mirror
+
+- job:
+    name: k8sapp-nginx-ingress-controller-tox-py27
+    parent: tox
+    description: |
+      Run py27 test for k8sapp-nginx-ingress-controller
+    nodeset: ubuntu-xenial
+    required-projects:
+      - starlingx/config
+      - starlingx/fault
+      - starlingx/update
+      - starlingx/utilities
+    files:
+      - python-k8sapp-nginx-ingress-controller/*
+    vars:
+      tox_envlist: py27
+      tox_extra_args: -c python-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
+
+- job:
+    name: k8sapp-nginx-ingress-controller-tox-py36
+    parent: tox
+    description: |
+      Run py36 test for k8sapp-nginx-ingress-controller
+    nodeset: ubuntu-bionic
+    required-projects:
+      - starlingx/config
+      - starlingx/fault
+      - starlingx/update
+      - starlingx/utilities
+    files:
+      - python-k8sapp-nginx-ingress-controller/*
+    vars:
+      tox_envlist: py36
+      tox_extra_args: -c python-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
+
+- job:
+    name: k8sapp-nginx-ingress-controller-tox-flake8
+    parent: tox
+    description: |
+      Run flake8 test for k8sapp-nginx-ingress-controller
+    files:
+      - python-k8sapp-nginx-ingress-controller/*
+    vars:
+      tox_envlist: flake8
+      tox_extra_args: -c python-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
+
+- job:
+    name: k8sapp-nginx-ingress-controller-tox-pylint
+    parent: tox
+    description: |
+      Run pylint test for k8sapp-nginx-ingress-controller
+    required-projects:
+      - starlingx/config
+      - starlingx/fault
+      - starlingx/update
+      - starlingx/utilities
+    files:
+      - python-k8sapp-nginx-ingress-controller/*
+    vars:
+      tox_envlist: pylint
+      tox_extra_args: -c python-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
+
+- job:
+    name: k8sapp-nginx-ingress-controller-tox-bandit
+    parent: tox
+    description: |
+      Run bandit test for k8sapp-nginx-ingress-controller
+    files:
+      - python-k8sapp-nginx-ingress-controller/*
+    vars:
+      tox_envlist: bandit
+      tox_extra_args: -c python-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
 
 - job:
     name: stx-nginx-ingress-controller-armada-app-upload-git-mirror
