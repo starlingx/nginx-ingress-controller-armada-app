@@ -5,6 +5,7 @@
         - openstack-tox-linters
         - k8sapp-nginx-ingress-controller-tox-py27
         - k8sapp-nginx-ingress-controller-tox-py36
+        - k8sapp-nginx-ingress-controller-tox-py39
         - k8sapp-nginx-ingress-controller-tox-flake8
         - k8sapp-nginx-ingress-controller-tox-pylint
         - k8sapp-nginx-ingress-controller-tox-bandit
@@ -13,6 +14,7 @@
         - openstack-tox-linters
         - k8sapp-nginx-ingress-controller-tox-py27
         - k8sapp-nginx-ingress-controller-tox-py36
+        - k8sapp-nginx-ingress-controller-tox-py39
         - k8sapp-nginx-ingress-controller-tox-flake8
         - k8sapp-nginx-ingress-controller-tox-pylint
         - k8sapp-nginx-ingress-controller-tox-bandit
@@ -52,6 +54,24 @@
       - python-k8sapp-nginx-ingress-controller/*
     vars:
       tox_envlist: py36
+      tox_extra_args: -c python-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
+
+- job:
+    name: k8sapp-nginx-ingress-controller-tox-py39
+    parent: tox-py39
+    description: |
+      Run py39 test for k8sapp-nginx-ingress-controller
+    nodeset: debian-bullseye
+    required-projects:
+      - starlingx/config
+      - starlingx/fault
+      - starlingx/update
+      - starlingx/utilities
+    files:
+      - python-k8sapp-nginx-ingress-controller/*
+    vars:
+      tox_envlist: py39
+      python_version: 3.9
       tox_extra_args: -c python-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
 
 - job:
