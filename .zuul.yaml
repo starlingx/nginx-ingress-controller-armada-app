@@ -70,6 +70,7 @@
     parent: tox
     description: |
       Run pylint test for k8sapp-nginx-ingress-controller
+    nodeset: ubuntu-xenial
     required-projects:
       - starlingx/config
       - starlingx/fault
