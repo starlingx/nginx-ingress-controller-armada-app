@@ -8,15 +8,37 @@
 
 """System inventory App lifecycle operator."""
 
+from time import time
+
 from k8sapp_nginx_ingress_controller.common import constants as app_constants
 from oslo_log import log as logging
 from sysinv.common import constants
 from sysinv.common import exception
 from sysinv.db import api as dbapi
 from sysinv.helm import lifecycle_base as base
+from sysinv.helm.lifecycle_hook import LifecycleHookInfo
 from sysinv.helm import lifecycle_utils
 
 LOG = logging.getLogger(__name__)
+
+BACKUP_FLAG = "backup_"
+CREATE_ADMISSION_WEBHOOK_OVERRIDE = "controller:\n  admissionWebhooks:\n    enabled"
+
+# Used as a flag to short-circuit webhook creation logic during post-backup and
+# post-restore. This name has no previous significance; it is introduced here.
+REAPPLY_ADMISSION_WEBHOOK_OVERRIDE = "ReapplyAdmissionWebhook: true\n"
+
+# It is necessary to disable the webhook creation in order to prevent it from
+# being created too early. Explicitly set the chart value "enabled" to false.
+# Compare CREATE_ADMISSION_WEBHOOK_OVERRIDE + ': true".
+DISABLE_ADMISSION_WEBHOOK_OVERRIDE_CREATION = CREATE_ADMISSION_WEBHOOK_OVERRIDE + ": false\n"
+
+# Swapping out the enabled webhook with a "backup" name in order to simplify
+# recreating it. The user overrides are presented as a string, so
+# CREATE_ADMISSION_WEBHOOK_OVERRIDE is replaced with
+# BACKUP_ADMISSION_WEBHOOK_OVERRIDE in pre-backup, and restored in post-backup
+# and post-restore operations.
+BACKUP_ADMISSION_WEBHOOK_OVERRIDE = BACKUP_FLAG + CREATE_ADMISSION_WEBHOOK_OVERRIDE
 
 
 class NginxIngressControllerAppLifecycleOperator(base.AppLifecycleOperator):
@@ -30,15 +52,25 @@ class NginxIngressControllerAppLifecycleOperator(base.AppLifecycleOperator):
         :param hook_info: LifecycleHookInfo object
 
         """
-        if hook_info.lifecycle_type == constants.APP_LIFECYCLE_TYPE_OPERATION:
-            if hook_info.operation == constants.APP_ETCD_BACKUP:
-                if hook_info.relative_timing == constants.APP_LIFECYCLE_TIMING_PRE:
-                    return self.pre_etcd_backup(app_op)
-
         if hook_info.lifecycle_type == constants.APP_LIFECYCLE_TYPE_RESOURCE:
             if hook_info.operation == constants.APP_APPLY_OP:
                 if hook_info.relative_timing == constants.APP_LIFECYCLE_TIMING_PRE:
                     return self.pre_apply(app_op, app, hook_info)
+
+        if hook_info.lifecycle_type == constants.APP_LIFECYCLE_TYPE_OPERATION:
+            if hook_info.operation == constants.APP_BACKUP:
+                if hook_info.relative_timing == constants.APP_LIFECYCLE_TIMING_PRE:
+                    return self.pre_backup(app_op, app)
+
+        if hook_info.lifecycle_type == constants.APP_LIFECYCLE_TYPE_OPERATION:
+            if hook_info.operation == constants.APP_BACKUP:
+                if hook_info.relative_timing == constants.APP_LIFECYCLE_TIMING_POST:
+                    return self.post_backup(app_op, app)
+
+        if hook_info.lifecycle_type == constants.APP_LIFECYCLE_TYPE_OPERATION:
+            if hook_info.operation == constants.APP_RESTORE:
+                if hook_info.relative_timing == constants.APP_LIFECYCLE_TIMING_POST:
+                    return self.post_restore(app_op, app)
 
         super(NginxIngressControllerAppLifecycleOperator, self).app_lifecycle_actions(
             context, conductor_obj, app_op, app, hook_info)
@@ -72,13 +104,13 @@ class NginxIngressControllerAppLifecycleOperator(base.AppLifecycleOperator):
         from_db_app = inactive_db_apps[0]
         to_db_app = dbapi_instance.kube_app_get(app.name)
 
-        old_chart_overrides = self._get_helm_overrides(
+        old_chart_overrides = self._get_helm_user_overrides(
             dbapi_instance,
             from_db_app,
             app_constants.HELM_CHART_LEGACY_INGRESS_NGINX,
             app_constants.HELM_NS_NGINX_INGRESS_CONTROLLER)
 
-        new_chart_overrides = self._get_helm_overrides(
+        new_chart_overrides = self._get_helm_user_overrides(
             dbapi_instance,
             to_db_app,
             app_constants.HELM_CHART_INGRESS_NGINX,
@@ -97,33 +129,144 @@ class NginxIngressControllerAppLifecycleOperator(base.AppLifecycleOperator):
                 to_db_app,
                 app_constants.HELM_CHART_INGRESS_NGINX,
                 app_constants.HELM_NS_NGINX_INGRESS_CONTROLLER,
-                old_chart_overrides)
+                old_chart_overrides,
+            )
 
-    def pre_etcd_backup(self, app_op):
-        """Pre Etcd backup actions
+    def pre_backup(self, app_op, app):
+        LOG.debug("Executing pre_backup for {} app".format(constants.HELM_APP_NGINX_IC))
 
-        :param app_op: AppOperator object
+        webhook = self._get_webhook_configuration(app_op)
+        if not webhook:
+            LOG.info("Validating webhook not present on system. Nothing to be done.")
+            return
 
-        """
-        LOG.info("Executing pre_etcd_backup for {} app".format(constants.HELM_APP_NGINX_IC))
-        label_selector = "app.kubernetes.io/name={}," \
-                         "app.kubernetes.io/component={}"\
-                         .format(app_constants.HELM_CHART_INGRESS_NGINX, "admission-webhook")
-        # pylint: disable=protected-access
-        webhooks = app_op._kube.kube_get_validating_webhook_configurations_by_selector(label_selector, "")
+        webhook_name = webhook.metadata.name
+        app_op._kube.kube_delete_validating_webhook_configuration(webhook_name)
+
+        dbapi_instance = app_op._dbapi
+        db_app = dbapi_instance.kube_app_get(app.name)
+
+        user_overrides = self._get_helm_user_overrides(
+            dbapi_instance,
+            db_app,
+            app_constants.HELM_CHART_INGRESS_NGINX,
+            app_constants.HELM_NS_NGINX_INGRESS_CONTROLLER,
+        )
+
+        updated_overrides = (
+            REAPPLY_ADMISSION_WEBHOOK_OVERRIDE
+            + DISABLE_ADMISSION_WEBHOOK_OVERRIDE_CREATION
+            + user_overrides.replace(
+                CREATE_ADMISSION_WEBHOOK_OVERRIDE,
+                BACKUP_ADMISSION_WEBHOOK_OVERRIDE,
+            )
+        )
+
+        self._update_helm_user_overrides(
+            dbapi_instance,
+            db_app,
+            app_constants.HELM_CHART_INGRESS_NGINX,
+            app_constants.HELM_NS_NGINX_INGRESS_CONTROLLER,
+            updated_overrides,
+        )
+
+    def post_backup(self, app_op, app):
+        LOG.debug(
+            "Executing post_backup for {} app".format(constants.HELM_APP_NGINX_IC)
+        )
+        self._recreate_webhook_configuration(app_op, app)
+
+    def post_restore(self, app_op, app):
+        LOG.debug(
+            "Executing post_restore for {} app".format(constants.HELM_APP_NGINX_IC)
+        )
+        self._recreate_webhook_configuration(app_op, app)
+
+    def _get_webhook_configuration(self, app_op):
+        label_selector = (
+            "app.kubernetes.io/name={},"
+            "app.kubernetes.io/component={}".format(
+                app_constants.HELM_CHART_INGRESS_NGINX, "admission-webhook"
+            )
+        )
+        webhooks = app_op._kube.kube_get_validating_webhook_configurations_by_selector(
+            label_selector, ""
+        )
+
+        if len(webhooks) > 1:
+            raise exception.LifecycleSemanticCheckException(
+                "Multiple Validating Webhook Configurations found for nginx ingress controller"
+            )
         if webhooks:
-            admission_webhook = webhooks[0].metadata.name
-            # pylint: disable=protected-access
-            app_op._kube.kube_delete_validating_webhook_configuration(admission_webhook)
+            return webhooks[0]
 
-    def _get_helm_overrides(self, dbapi_instance, app, chart, namespace):
+    def _recreate_webhook_configuration(self, app_op, app):
+        webhook = self._get_webhook_configuration(app_op)
+        if webhook:
+            LOG.info(
+                "Validating webhook already present on system. Nothing to be done."
+            )
+            return
+
+        dbapi_instance = app_op._dbapi
+        db_app = dbapi_instance.kube_app_get(app.name)
+
+        user_overrides = self._get_helm_user_overrides(
+            dbapi_instance,
+            db_app,
+            app_constants.HELM_CHART_INGRESS_NGINX,
+            app_constants.HELM_NS_NGINX_INGRESS_CONTROLLER,
+        )
+
+        if REAPPLY_ADMISSION_WEBHOOK_OVERRIDE not in user_overrides:
+            LOG.info("Override for admission webhook not found. Nothing to be done.")
+            return
+
+        original_overrides = user_overrides.replace(
+            DISABLE_ADMISSION_WEBHOOK_OVERRIDE_CREATION, ""
+        ).replace(REAPPLY_ADMISSION_WEBHOOK_OVERRIDE, "")
+
+        updated_overrides = CREATE_ADMISSION_WEBHOOK_OVERRIDE + ": %s\n" % time() + original_overrides
+
+        self._update_helm_user_overrides(
+            dbapi_instance,
+            db_app,
+            app_constants.HELM_CHART_INGRESS_NGINX,
+            app_constants.HELM_NS_NGINX_INGRESS_CONTROLLER,
+            updated_overrides,
+        )
+
+        # Reapply the application to ensure the validating webhook is recreated
+        lifecycle_hook_info = LifecycleHookInfo()
+        lifecycle_hook_info.operation = constants.APP_APPLY_OP
+        app_op.perform_app_apply(
+            app._kube_app, constants.APP_LIFECYCLE_MODE_AUTO, lifecycle_hook_info
+        )
+
+        if BACKUP_ADMISSION_WEBHOOK_OVERRIDE in original_overrides:
+            original_overrides = original_overrides.replace(
+                BACKUP_ADMISSION_WEBHOOK_OVERRIDE,
+                CREATE_ADMISSION_WEBHOOK_OVERRIDE,
+            )
+
+        self._update_helm_user_overrides(
+            dbapi_instance,
+            db_app,
+            app_constants.HELM_CHART_INGRESS_NGINX,
+            app_constants.HELM_NS_NGINX_INGRESS_CONTROLLER,
+            original_overrides,
+        )
+
+    def _get_helm_user_overrides(self, dbapi_instance, app, chart, namespace):
         try:
-            override = dbapi_instance.helm_override_get(app_id=app.id, name=chart, namespace=namespace)
+            return dbapi_instance.helm_override_get(
+                app_id=app.id,
+                name=chart,
+                namespace=namespace,
+            ).user_overrides or ""
         except exception.HelmOverrideNotFound:
-            # Override for this chart not be found, nothing to be done
-            return None
-
-        return override['user_overrides']
+            # Override for this chart not found, nothing to be done
+            return ""
 
     def _update_helm_user_overrides(self, dbapi_instance, app, chart, namespace, overrides):
         values = {'user_overrides': overrides}
