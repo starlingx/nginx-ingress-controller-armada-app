@@ -49,6 +49,11 @@ data:
       admissionWebhooks:
         # default port 8443 conflicts with lighttpd using https
         port: 5443
+        patch:
+          tolerations:
+            - key: "node-role.kubernetes.io/master"
+              operator: "Exists"
+              effect: "NoSchedule"
     defaultBackend:
       image:
         repository: k8s.gcr.io/defaultbackend

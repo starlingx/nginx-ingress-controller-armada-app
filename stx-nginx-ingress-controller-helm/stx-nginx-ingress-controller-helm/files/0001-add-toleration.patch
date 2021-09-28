@@ -1,0 +1,27 @@
+From 8901108acc3b364c9121481f9556acbf2e4edb6d Mon Sep 17 00:00:00 2001
+From: Rafael Camargos <RafaelLucas.Camargos@windriver.com>
+Date: Mon, 27 Sep 2021 22:31:26 -0300
+Subject: [PATCH] Add toleration to daemonset
+
+---
+ charts/ingress-nginx/templates/controller-daemonset.yaml | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/charts/ingress-nginx/templates/controller-daemonset.yaml b/charts/ingress-nginx/templates/controller-daemonset.yaml
+index aa8693b47..6df0a9809 100644
+--- a/charts/ingress-nginx/templates/controller-daemonset.yaml
++++ b/charts/ingress-nginx/templates/controller-daemonset.yaml
+@@ -61,6 +61,10 @@ spec:
+           value: {{ $value | quote }}
+     {{- end }}
+     {{- end }}
++      tolerations:
++        - key: "node-role.kubernetes.io/master"
++          operator: "Exists"
++          effect: "NoSchedule"
+       containers:
+         - name: controller
+           {{- with .Values.controller.image }}
+-- 
+2.17.1
+
