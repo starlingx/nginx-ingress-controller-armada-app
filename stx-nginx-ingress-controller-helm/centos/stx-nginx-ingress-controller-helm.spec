@@ -30,6 +30,8 @@ Source5: nginx_ingress_controller_manifest.yaml
 
 BuildArch: noarch
 
+Patch01: 0001-add-toleration.patch
+
 BuildRequires: helm
 BuildRequires: chartmuseum
 BuildRequires: python-k8sapp-nginx-ingress-controller
@@ -40,6 +42,7 @@ StarlingX Nginx Ingress Controller Application Armada Helm Charts
 
 %prep
 %setup -n helm-charts
+%patch01 -p1
 
 %build
 # Host a server for the charts
