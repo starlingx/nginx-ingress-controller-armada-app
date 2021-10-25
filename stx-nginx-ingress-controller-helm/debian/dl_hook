@@ -1,0 +1,25 @@
+#!/bin/bash
+set -x
+
+PKG_BUILD_NAME=$1
+PKG_BUILD_ROOT=$(realpath `pwd`/${PKG_BUILD_NAME})
+PKG_DIR="stx-nginx-ingress-controller-helm"
+STX_BASE=$(realpath ${MY_REPO}/stx)
+SRC=$(realpath ${STX_BASE}/nginx-ingress-controller-armada-app/${PKG_DIR}/${PKG_DIR})
+
+mkdir -p ${PKG_BUILD_ROOT}
+pushd ${PKG_BUILD_ROOT}
+
+# Local mirror workaround until CGCS_BASE mirror is supported.
+STX_MIRROR=$(realpath "/import/mirrors/starlingx")
+
+# Download ingress-nginx helm source package.
+NGINX_PKG="helm-charts-ingress-nginx-0.41.2.tar.gz"
+NGINX_SRC_PATH=$(realpath ${STX_MIRROR}/downloads/${NGINX_PKG})
+cp ${NGINX_SRC_PATH} ${PKG_BUILD_ROOT}
+
+# Extract the ingress-nginx tar file.
+tar xfz ${NGINX_PKG}
+
+# Copy source files to the build directory.
+cp -pr ${SRC}/files/* ${SRC}/manifests/* ${PKG_BUILD_ROOT}
