@@ -1,0 +1,27 @@
+Source: python3-k8sapp-nginx-ingress-controller
+Section: libs
+Priority: optional
+Maintainer: StarlingX Developers <starlingx-discuss@lists.starlingx.io>
+Build-Depends: debhelper-compat (= 13),
+ dh-python,
+ python3-all,
+ python3-pbr,
+ python3-setuptools,
+ python3-wheel
+Standards-Version: 4.5.1
+Homepage: https://www.starlingx.io
+
+Package: python3-k8sapp-nginx-ingress-controller
+Section: libs
+Architecture: any
+Depends: ${misc:Depends}, ${python3:Depends}
+Description: StarlingX Sysinv Nginx Extension
+ This package contains the nginx ingress controller K8S app.
+
+Package: python3-k8sapp-nginx-ingress-controller-wheels
+Section: libs
+Architecture: any
+Depends: ${misc:Depends}, ${python3:Depends}, python3-wheel
+Description: StarlingX Sysinv Nginx Extension Wheels
+ This package contains python wheels for the nginx ingress controller
+ K8S app plugins.
