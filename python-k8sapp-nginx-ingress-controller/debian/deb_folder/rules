@@ -11,13 +11,6 @@ export ROOT=debian/tmp
 
 override_dh_auto_install:
 	python3 setup.py install --install-layout=deb --root $(ROOT)
-	rm -rf $(ROOT)/usr/lib/python3/dist-packages/k8sapp_nginx_ingress_controller/__pycache__
-	rm -rf $(ROOT)/usr/lib/python3/dist-packages/k8sapp_nginx_ingress_controller/common/__pycache__
-	rm -rf $(ROOT)/usr/lib/python3/dist-packages/k8sapp_nginx_ingress_controller/common/__pycache__
-	rm -rf $(ROOT)/usr/lib/python3/dist-packages/k8sapp_nginx_ingress_controller/lifecycle/__pycache__
-	rm -rf $(ROOT)/usr/lib/python3/dist-packages/k8sapp_nginx_ingress_controller/lifecycle/__pycache__
-	rm -rf $(ROOT)/usr/lib/python3/dist-packages/k8sapp_nginx_ingress_controller/tests/__pycache__
-	rm -rf $(ROOT)/usr/lib/python3/dist-packages/k8sapp_nginx_ingress_controller/tests/__pycache__
 	python3 setup.py bdist_wheel \
 		--universal \
 		-d $(ROOT)/plugins/$(APP_NAME)
@@ -27,6 +20,6 @@ override_dh_python3:
 
 ifeq (,$(findstring nocheck, $(DEB_BUILD_OPTIONS)))
 override_dh_auto_test:
-        # (tbogue) FIXME
-        PYTHONDIR=$(CURDIR) stestr run || true
+	# (tbogue) FIXME
+	PYTHONDIR=$(CURDIR) stestr run || true
 endif

@@ -25,7 +25,8 @@ override_dh_auto_build:
 	# Apply the daemonset tolerations patch.
 	patch --no-backup-if-mismatch --fuzz=0 -p1 < 0001-add-toleration.patch
 	# Host a server for the helm charts.
-	chartmuseum --debug --port=8879 --context-path='/charts' --storage="local" --storage-local-rootdir="." &
+	chartmuseum --debug --port=8879 --context-path='/charts' --storage="local" \
+		--storage-local-rootdir="." &
 	sleep 2
 	helm repo add local http://localhost:8879/charts
 	# Create the TGZ file.
