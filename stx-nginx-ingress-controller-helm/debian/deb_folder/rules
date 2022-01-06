@@ -13,11 +13,13 @@ export APP_VERSION = $(MAJOR).$(MINOR_PATCH)
 export APP_TARBALL = $(APP_NAME)-$(APP_VERSION).tgz
 export HELM_REPO = stx-platform
 export STAGING = staging
+export NGINX_PKG = helm-charts-ingress-nginx-0.41.2.tar.gz
 
 %:
 	dh $@
 
 override_dh_auto_build:
+	tar xfz $(NGINX_PKG)
 	# Move the extracted helm chart files to the top level build directory.
 	# Remove the helm-charts Makefile first so it doesn't overwrite our Makefile.
 	rm helm-charts/Makefile
