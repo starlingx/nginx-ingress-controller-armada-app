@@ -26,7 +26,19 @@ Source1: repositories.yaml
 Source2: index.yaml
 Source3: Makefile
 Source4: metadata.yaml
+
+# armada specific source items
 Source5: nginx_ingress_controller_manifest.yaml
+
+# fluxcd specific source items
+Source6: kustomization.yaml
+Source7: base_helmrepository.yaml
+Source8: base_kustomization.yaml
+Source9: base_namespace.yaml
+Source10: nginx-ingress_helmrelease.yaml
+Source11: nginx-ingress_kustomization.yaml
+Source12: nginx-ingress_nginx-ingress-static-overrides.yaml
+Source13: nginx-ingress_nginx-ingress-system-overrides.yaml
 
 BuildArch: noarch
 
@@ -39,6 +51,14 @@ BuildRequires: python-k8sapp-nginx-ingress-controller-wheels
 
 %description
 StarlingX Nginx Ingress Controller Application Armada Helm Charts
+
+%package fluxcd
+Summary: StarlingX Nginx Ingress Controller Application FluxCD Helm Charts
+Group: base
+License: Apache-2.0
+
+%description fluxcd
+StarlingX Nginx Ingress Controller Application FluxCD Helm Charts
 
 %prep
 %setup -n helm-charts
@@ -61,7 +81,8 @@ kill %1
 
 # Create a chart tarball compliant with sysinv kube-app.py
 %define app_staging %{_builddir}/staging
-%define app_tarball %{app_name}-%{version}-%{tis_patch_ver}.tgz
+%define app_tarball_armada %{app_name}-%{version}-%{tis_patch_ver}.tgz
+%define app_tarball_fluxcd %{app_name}-fluxcd-%{version}-%{tis_patch_ver}.tgz
 
 # Setup staging
 mkdir -p %{app_staging}
@@ -81,17 +102,43 @@ sed -i 's/@HELM_REPO@/%{helm_repo}/g' %{app_staging}/metadata.yaml
 mkdir -p %{app_staging}/plugins
 cp /plugins/%{app_name}/*.whl %{app_staging}/plugins
 
-# package it up
+# package armada
 find . -type f ! -name '*.md5' -print0 | xargs -0 md5sum > checksum.md5
-tar -zcf %{_builddir}/%{app_tarball} -C %{app_staging}/ .
+tar -zcf %{_builddir}/%{app_tarball_armada} -C %{app_staging}/ .
+
+# package fluxcd
+rm -f %{app_staging}/nginx_ingress_controller_manifest.yaml
+fluxcd_dest=%{app_staging}/fluxcd-manifests
+mkdir -p $fluxcd_dest
+cp %{SOURCE6} %{app_staging}/fluxcd-manifests
+cd %{_sourcedir}
+directories="base nginx-ingress"
+for dir in $directories;
+do
+  mkdir -p $dir
+  prefix="${dir}_"
+  for file in ${dir}_*; do
+    mv $file $dir/"${file#$prefix}"
+  done
+  cp -r $dir $fluxcd_dest
+done
+cd -
+
+find . -type f ! -name '*.md5' -print0 | xargs -0 md5sum > checksum.md5
+tar -zcf %{_builddir}/%{app_tarball_fluxcd} -C %{app_staging}/ .
 
 # Cleanup staging
 rm -fr %{app_staging}
 
 %install
 install -d -m 755 %{buildroot}/%{app_folder}
-install -p -D -m 755 %{_builddir}/%{app_tarball} %{buildroot}/%{app_folder}
+install -p -D -m 755 %{_builddir}/%{app_tarball_armada} %{buildroot}/%{app_folder}
+install -p -D -m 755 %{_builddir}/%{app_tarball_fluxcd} %{buildroot}/%{app_folder}
 
 %files
 %defattr(-,root,root,-)
-%{app_folder}/*
+%{app_folder}/%{app_tarball_armada}
+
+%files fluxcd
+%defattr(-,root,root,-)
+%{app_folder}/%{app_tarball_fluxcd}

@@ -4,6 +4,6 @@ TAR_NAME=helm-charts-ingress-nginx
 NGINX_VERSION=0.41.2
 TAR="$TAR_NAME-$NGINX_VERSION.tar.gz"
 
-COPY_LIST="${CGCS_BASE}/downloads/$TAR $PKG_BASE/$SRC_DIR/files/* $PKG_BASE/$SRC_DIR/manifests/*"
+COPY_LIST="${CGCS_BASE}/downloads/$TAR $PKG_BASE/$SRC_DIR/files/* $PKG_BASE/$SRC_DIR/manifests/* $PKG_BASE/$SRC_DIR/fluxcd-manifests/*"
 
 TIS_PATCH_VER=PKG_GITREVCOUNT

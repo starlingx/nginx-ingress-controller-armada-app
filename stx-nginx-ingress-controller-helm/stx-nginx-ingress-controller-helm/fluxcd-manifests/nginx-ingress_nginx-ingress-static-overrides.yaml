@@ -1,0 +1,51 @@
+#
+# Copyright (c) 2022 Wind River Systems, Inc.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+
+imagePullSecrets: [{"name": "default-registry-key"}]
+controller:
+  kind: DaemonSet
+  image:
+    # cleans the default digest value since sysinv changes the digest when pushing the image to the local registry
+    digest: ""
+  daemonset:
+    useHostPort: false
+  nodeSelector:
+    node-role.kubernetes.io/master: ""
+  config:
+    # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/
+    nginx-status-ipv4-whitelist: 0.0.0.0/0
+    # See https://bugs.launchpad.net/starlingx/+bug/1823803
+    # Note quotes are necessary.
+    worker-processes: '1'
+  scope:
+    enabled: false
+  service:
+    type: ""
+  hostNetwork: true
+  livenessProbe:
+    initialDelaySeconds: 30
+  readinessProbe:
+    initialDelaySeconds: 30
+  admissionWebhooks:
+    # default port 8443 conflicts with lighttpd using https
+    port: 5443
+    patch:
+      tolerations:
+        - key: "node-role.kubernetes.io/master"
+          operator: "Exists"
+          effect: "NoSchedule"
+defaultBackend:
+  image:
+    repository: k8s.gcr.io/defaultbackend
+    tag: "1.4"
+  nodeSelector:
+    node-role.kubernetes.io/master: ""
+  service:
+    type: ""
+  livenessProbe:
+    initialDelaySeconds: 30
+  readinessProbe:
+    initialDelaySeconds: 30
