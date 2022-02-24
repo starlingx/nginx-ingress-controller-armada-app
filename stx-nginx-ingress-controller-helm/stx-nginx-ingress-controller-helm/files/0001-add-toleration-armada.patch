@@ -22,6 +22,5 @@ index aa8693b47..6df0a9809 100644
        containers:
          - name: controller
            {{- with .Values.controller.image }}
--- 
+--
 2.17.1
-

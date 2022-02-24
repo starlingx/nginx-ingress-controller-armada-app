@@ -1,7 +1,8 @@
 # Application tunables (maps to metadata)
 %global app_name nginx-ingress-controller
 %global helm_repo stx-platform
-%global nginx_version 0.41.2
+%global armada_nginx_version 0.41.2
+%global fluxcd_nginx_version 1.1.1
 
 %global armada_folder  /usr/lib/armada
 
@@ -21,7 +22,7 @@ Group: base
 Packager: Wind River <info@windriver.com>
 URL: unknown
 
-Source0: helm-charts-ingress-nginx-%{nginx_version}.tar.gz
+Source0: helm-charts-ingress-nginx-%{armada_nginx_version}.tar.gz
 Source1: repositories.yaml
 Source2: index.yaml
 Source3: Makefile
@@ -31,18 +32,20 @@ Source4: metadata.yaml
 Source5: nginx_ingress_controller_manifest.yaml
 
 # fluxcd specific source items
-Source6: kustomization.yaml
-Source7: base_helmrepository.yaml
-Source8: base_kustomization.yaml
-Source9: base_namespace.yaml
-Source10: nginx-ingress_helmrelease.yaml
-Source11: nginx-ingress_kustomization.yaml
-Source12: nginx-ingress_nginx-ingress-static-overrides.yaml
-Source13: nginx-ingress_nginx-ingress-system-overrides.yaml
+Source6: helm-charts-ingress-nginx-%{fluxcd_nginx_version}.tar.gz
+Source7: kustomization.yaml
+Source8: base_helmrepository.yaml
+Source9: base_kustomization.yaml
+Source10: base_namespace.yaml
+Source11: nginx-ingress_helmrelease.yaml
+Source12: nginx-ingress_kustomization.yaml
+Source13: nginx-ingress_nginx-ingress-static-overrides.yaml
+Source14: nginx-ingress_nginx-ingress-system-overrides.yaml
 
 BuildArch: noarch
 
-Patch01: 0001-add-toleration.patch
+Patch01: 0001-add-toleration-armada.patch
+Patch02: 0001-add-toleration-fluxcd.patch
 
 BuildRequires: helm
 BuildRequires: chartmuseum
@@ -64,17 +67,32 @@ StarlingX Nginx Ingress Controller Application FluxCD Helm Charts
 %setup -n helm-charts
 %patch01 -p1
 
+# set up fluxcd tar source
+cd %{_builddir}
+rm -rf fluxcd
+/usr/bin/mkdir -p fluxcd
+cd fluxcd
+/usr/bin/tar xfv /builddir/build/SOURCES/helm-charts-ingress-nginx-%{fluxcd_nginx_version}.tar.gz
+cd %{_builddir}/fluxcd/helm-charts
+%patch02 -p1
+
 %build
 # Host a server for the charts
+cd %{_builddir}/helm-charts
 chartmuseum --debug --port=8879 --context-path='/charts' --storage="local" --storage-local-rootdir="." &
 sleep 2
 helm repo add local http://localhost:8879/charts
 
-# Create the tgz file
+# Create the tgz file for armada
 cp %{SOURCE3} charts
 cd charts
 make ingress-nginx
-cd -
+
+# Create the tgz file for fluxcd
+cd %{_builddir}/fluxcd/helm-charts
+cp %{SOURCE3} charts
+cd charts
+make ingress-nginx
 
 # Terminate helm server (the last backgrounded task)
 kill %1
@@ -90,6 +108,7 @@ cp %{SOURCE4} %{app_staging}
 cp %{SOURCE5} %{app_staging}
 mkdir -p %{app_staging}/charts
 
+cd %{_builddir}/helm-charts
 cp charts/*.tgz %{app_staging}/charts
 cd %{app_staging}
 
@@ -108,9 +127,12 @@ tar -zcf %{_builddir}/%{app_tarball_armada} -C %{app_staging}/ .
 
 # package fluxcd
 rm -f %{app_staging}/nginx_ingress_controller_manifest.yaml
+rm -f %{app_staging}/charts/*.tgz
+rm -f %{SOURCE6}
+cp %{_builddir}/fluxcd/helm-charts/charts/*.tgz %{app_staging}/charts
 fluxcd_dest=%{app_staging}/fluxcd-manifests
 mkdir -p $fluxcd_dest
-cp %{SOURCE6} %{app_staging}/fluxcd-manifests
+cp %{SOURCE7} %{app_staging}/fluxcd-manifests
 cd %{_sourcedir}
 directories="base nginx-ingress"
 for dir in $directories;
