@@ -25,7 +25,7 @@ override_dh_auto_build:
 	rm helm-charts/Makefile
 	mv helm-charts/* .
 	# Apply the daemonset tolerations patch.
-	patch --no-backup-if-mismatch --fuzz=0 -p1 < 0001-add-toleration.patch
+	patch --no-backup-if-mismatch --fuzz=0 -p1 < 0001-add-toleration-armada.patch
 	# Host a server for the helm charts.
 	chartmuseum --debug --port=8879 --context-path='/charts' --storage="local" \
 		--storage-local-rootdir="." &
