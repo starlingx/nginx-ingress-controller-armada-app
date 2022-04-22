@@ -38,7 +38,8 @@ class IngressNginxHelm(base.BaseHelm):
                             ip_family
                         ]
                     }
-                }
+                },
+                'fullnameOverride': 'ic-nginx-ingress-ingress-nginx'
             }
         }
 

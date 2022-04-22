@@ -9,4 +9,4 @@ kind: Kustomization
 namespace: kube-system
 resources:
   - base
-  - nginx-ingress
+  - ingress-nginx

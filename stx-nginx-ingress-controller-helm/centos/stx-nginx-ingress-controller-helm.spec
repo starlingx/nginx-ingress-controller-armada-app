@@ -13,7 +13,8 @@
 %global helm_folder /usr/lib/helm
 %global toolkit_version 0.1.0
 
-Summary: StarlingX Nginx Ingress Controller Application Armada Helm Charts
+Summary: StarlingX Nginx Ingress Controller Application FluxCD Helm Charts
+#StarlingX Nginx Ingress Controller Application Armada Helm Charts
 Name: stx-nginx-ingress-controller-helm
 Version: 1.1
 Release: %{tis_patch_ver}%{?_tis_dist}
@@ -37,10 +38,10 @@ Source7: kustomization.yaml
 Source8: base_helmrepository.yaml
 Source9: base_kustomization.yaml
 Source10: base_namespace.yaml
-Source11: nginx-ingress_helmrelease.yaml
-Source12: nginx-ingress_kustomization.yaml
-Source13: nginx-ingress_nginx-ingress-static-overrides.yaml
-Source14: nginx-ingress_nginx-ingress-system-overrides.yaml
+Source11: ingress-nginx_helmrelease.yaml
+Source12: ingress-nginx_kustomization.yaml
+Source13: ingress-nginx_ingress-nginx-static-overrides.yaml
+Source14: ingress-nginx_ingress-nginx-system-overrides.yaml
 
 BuildArch: noarch
 
@@ -53,14 +54,6 @@ BuildRequires: python-k8sapp-nginx-ingress-controller
 BuildRequires: python-k8sapp-nginx-ingress-controller-wheels
 
 %description
-StarlingX Nginx Ingress Controller Application Armada Helm Charts
-
-%package fluxcd
-Summary: StarlingX Nginx Ingress Controller Application FluxCD Helm Charts
-Group: base
-License: Apache-2.0
-
-%description fluxcd
 StarlingX Nginx Ingress Controller Application FluxCD Helm Charts
 
 %prep
@@ -99,8 +92,7 @@ kill %1
 
 # Create a chart tarball compliant with sysinv kube-app.py
 %define app_staging %{_builddir}/staging
-%define app_tarball_armada %{app_name}-%{version}-%{tis_patch_ver}.tgz
-%define app_tarball_fluxcd %{app_name}-fluxcd-%{version}-%{tis_patch_ver}.tgz
+%define app_tarball_fluxcd %{app_name}-%{version}-%{tis_patch_ver}.tgz
 
 # Setup staging
 mkdir -p %{app_staging}
@@ -121,10 +113,6 @@ sed -i 's/@HELM_REPO@/%{helm_repo}/g' %{app_staging}/metadata.yaml
 mkdir -p %{app_staging}/plugins
 cp /plugins/%{app_name}/*.whl %{app_staging}/plugins
 
-# package armada
-find . -type f ! -name '*.md5' -print0 | xargs -0 md5sum > checksum.md5
-tar -zcf %{_builddir}/%{app_tarball_armada} -C %{app_staging}/ .
-
 # package fluxcd
 rm -f %{app_staging}/nginx_ingress_controller_manifest.yaml
 rm -f %{app_staging}/charts/*.tgz
@@ -134,7 +122,7 @@ fluxcd_dest=%{app_staging}/fluxcd-manifests
 mkdir -p $fluxcd_dest
 cp %{SOURCE7} %{app_staging}/fluxcd-manifests
 cd %{_sourcedir}
-directories="base nginx-ingress"
+directories="base ingress-nginx"
 for dir in $directories;
 do
   mkdir -p $dir
@@ -154,13 +142,8 @@ rm -fr %{app_staging}
 
 %install
 install -d -m 755 %{buildroot}/%{app_folder}
-install -p -D -m 755 %{_builddir}/%{app_tarball_armada} %{buildroot}/%{app_folder}
 install -p -D -m 755 %{_builddir}/%{app_tarball_fluxcd} %{buildroot}/%{app_folder}
 
 %files
-%defattr(-,root,root,-)
-%{app_folder}/%{app_tarball_armada}
-
-%files fluxcd
 %defattr(-,root,root,-)
 %{app_folder}/%{app_tarball_fluxcd}

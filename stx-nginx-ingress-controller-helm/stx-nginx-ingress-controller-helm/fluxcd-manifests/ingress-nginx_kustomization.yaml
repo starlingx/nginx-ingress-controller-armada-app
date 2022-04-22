@@ -8,11 +8,11 @@ namespace: kube-system
 resources:
   - helmrelease.yaml
 secretGenerator:
-  - name: nginx-ingress-static-overrides
+  - name: ingress-nginx-static-overrides
     files:
-      - nginx-ingress-static-overrides.yaml
-  - name: nginx-ingress-system-overrides
+      - ingress-nginx-static-overrides.yaml
+  - name: ingress-nginx-system-overrides
     files:
-      - nginx-ingress-system-overrides.yaml
+      - ingress-nginx-system-overrides.yaml
 generatorOptions:
   disableNameSuffixHash: true
