@@ -54,6 +54,12 @@ data:
             - key: "node-role.kubernetes.io/master"
               operator: "Exists"
               effect: "NoSchedule"
+      extraVolumes:
+        - name: pod-tmp
+          emptyDir: {}
+      extraVolumeMounts:
+        - name: pod-tmp
+          mountPath: /tmp
     defaultBackend:
       image:
         repository: k8s.gcr.io/defaultbackend
