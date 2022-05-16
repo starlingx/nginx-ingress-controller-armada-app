@@ -10,6 +10,8 @@ controller:
   image:
     # cleans the default digest value since sysinv changes the digest when pushing the image to the local registry
     digest: ""
+    repository: k8s.gcr.io/ingress-nginx/controller
+    tag: v1.1.1
   daemonset:
     useHostPort: false
   nodeSelector:
@@ -33,12 +35,17 @@ controller:
     # default port 8443 conflicts with lighttpd using https
     port: 5443
     patch:
+      image:
+        digest: ""
+        repository: k8s.gcr.io/ingress-nginx/kube-webhook-certgen
+        tag: v1.1.1
       tolerations:
         - key: "node-role.kubernetes.io/master"
           operator: "Exists"
           effect: "NoSchedule"
 defaultBackend:
   image:
+    digest: ""
     repository: k8s.gcr.io/defaultbackend
     tag: "1.4"
   nodeSelector:
