@@ -23,25 +23,16 @@ Group: base
 Packager: Wind River <info@windriver.com>
 URL: unknown
 
-Source0: helm-charts-ingress-nginx-%{armada_nginx_version}.tar.gz
+Source0: %{name}-%{version}.tar.gz
+
 Source1: repositories.yaml
 Source2: index.yaml
 Source3: Makefile
-Source4: metadata.yaml
 
-# armada specific source items
-Source5: nginx_ingress_controller_manifest.yaml
+Source5: helm-charts-ingress-nginx-%{armada_nginx_version}.tar.gz
 
 # fluxcd specific source items
 Source6: helm-charts-ingress-nginx-%{fluxcd_nginx_version}.tar.gz
-Source7: kustomization.yaml
-Source8: base_helmrepository.yaml
-Source9: base_kustomization.yaml
-Source10: base_namespace.yaml
-Source11: ingress-nginx_helmrelease.yaml
-Source12: ingress-nginx_kustomization.yaml
-Source13: ingress-nginx_ingress-nginx-static-overrides.yaml
-Source14: ingress-nginx_ingress-nginx-system-overrides.yaml
 
 BuildArch: noarch
 
@@ -57,15 +48,19 @@ BuildRequires: python-k8sapp-nginx-ingress-controller-wheels
 StarlingX Nginx Ingress Controller Application FluxCD Helm Charts
 
 %prep
-%setup -n helm-charts
+%setup 
+
+cd %{_builddir}
+/usr/bin/tar xfv %{SOURCE5}
+cd helm-charts
 %patch01 -p1
 
 # set up fluxcd tar source
 cd %{_builddir}
 rm -rf fluxcd
 /usr/bin/mkdir -p fluxcd
-cd fluxcd
-/usr/bin/tar xfv /builddir/build/SOURCES/helm-charts-ingress-nginx-%{fluxcd_nginx_version}.tar.gz
+cd %{_builddir}/fluxcd
+/usr/bin/tar xfv %{SOURCE6}
 cd %{_builddir}/fluxcd/helm-charts
 %patch02 -p1
 
@@ -96,8 +91,9 @@ kill %1
 
 # Setup staging
 mkdir -p %{app_staging}
-cp %{SOURCE4} %{app_staging}
-cp %{SOURCE5} %{app_staging}
+cd %{_builddir}/stx-nginx-ingress-controller-helm-%{version}
+cp files/metadata.yaml %{app_staging}
+cp manifests/nginx_ingress_controller_manifest.yaml %{app_staging}
 mkdir -p %{app_staging}/charts
 
 cd %{_builddir}/helm-charts
@@ -118,21 +114,8 @@ rm -f %{app_staging}/nginx_ingress_controller_manifest.yaml
 rm -f %{app_staging}/charts/*.tgz
 rm -f %{SOURCE6}
 cp %{_builddir}/fluxcd/helm-charts/charts/*.tgz %{app_staging}/charts
-fluxcd_dest=%{app_staging}/fluxcd-manifests
-mkdir -p $fluxcd_dest
-cp %{SOURCE7} %{app_staging}/fluxcd-manifests
-cd %{_sourcedir}
-directories="base ingress-nginx"
-for dir in $directories;
-do
-  mkdir -p $dir
-  prefix="${dir}_"
-  for file in ${dir}_*; do
-    mv $file $dir/"${file#$prefix}"
-  done
-  cp -r $dir $fluxcd_dest
-done
-cd -
+cd %{_builddir}/stx-nginx-ingress-controller-helm-1.1
+cp -Rv fluxcd-manifests %{app_staging}/
 
 find . -type f ! -name '*.md5' -print0 | xargs -0 md5sum > checksum.md5
 tar -zcf %{_builddir}/%{app_tarball_fluxcd} -C %{app_staging}/ .

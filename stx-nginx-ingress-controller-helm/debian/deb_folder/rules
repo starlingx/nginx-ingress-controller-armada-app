@@ -10,54 +10,122 @@ export MINOR_PATCH = $(shell echo $(DEB_VERSION) | cut -f 2 -d '.')
 
 export APP_NAME = nginx-ingress-controller
 export APP_VERSION = $(MAJOR).$(MINOR_PATCH)
-export APP_TARBALL = $(APP_NAME)-$(APP_VERSION).tgz
+export APP_TARBALL_ARMADA = $(APP_NAME)-$(APP_VERSION).tgz
+export APP_TARBALL_FLUXCD = $(APP_NAME)-fluxcd-$(APP_VERSION).tgz
 export HELM_REPO = stx-platform
-export STAGING = staging
-export NGINX_PKG = helm-charts-ingress-nginx-0.41.2.tar.gz
+export STAGING_ARMADA = staging-armada
+export STAGING_FLUXCD = staging-fluxcd
+export ARMADA_NGINX_PKG = helm-charts-ingress-nginx-0.41.2.tar.gz
+export FLUXCD_NGINX_PKG = helm-charts-ingress-nginx-1.1.1.tar.gz
 
 %:
 	dh $@
 
 override_dh_auto_build:
-	tar xfz $(NGINX_PKG)
+
+	############
+	#  ARMADA  #
+	############
+	# Setup tar source
+	tar xfz $(ARMADA_NGINX_PKG)
 	# Move the extracted helm chart files to the top level build directory.
 	# Remove the helm-charts Makefile first so it doesn't overwrite our Makefile.
 	rm helm-charts/Makefile
 	mv helm-charts/* .
-	# Apply the daemonset tolerations patch.
-	patch --no-backup-if-mismatch --fuzz=0 -p1 < 0001-add-toleration-armada.patch
+
+	# Apply the daemonset tolerations patch to armada
+	patch --no-backup-if-mismatch --fuzz=0 -p1 < files/0001-add-toleration-armada.patch
+
 	# Host a server for the helm charts.
 	chartmuseum --debug --port=8879 --context-path='/charts' --storage="local" \
 		--storage-local-rootdir="." &
 	sleep 2
 	helm repo add local http://localhost:8879/charts
+
 	# Create the TGZ file.
-	cp Makefile charts
+	cp files/Makefile charts
 	cd charts && make ingress-nginx
+
 	# Terminate the helm chart server.
 	pkill chartmuseum
+
 	# Setup the staging directory.
-	mkdir -p $(STAGING)
-	cp metadata.yaml nginx_ingress_controller_manifest.yaml $(STAGING)
-	mkdir -p $(STAGING)/charts
-	cp charts/*.tgz $(STAGING)/charts
+	mkdir -p $(STAGING_ARMADA)
+	cp files/metadata.yaml  $(STAGING_ARMADA)
+	cp manifests/nginx_ingress_controller_manifest.yaml $(STAGING_ARMADA)
+	mkdir -p $(STAGING_ARMADA)/charts
+	cp charts/*.tgz $(STAGING_ARMADA)/charts
+
 	# Populate metadata.
-	sed -i 's/@APP_NAME@/$(APP_NAME)/g' $(STAGING)/metadata.yaml
-	sed -i 's/@APP_VERSION@/$(APP_VERSION)/g' $(STAGING)/metadata.yaml
-	sed -i 's/@HELM_REPO@/$(HELM_REPO)/g' $(STAGING)/metadata.yaml
+	sed -i 's/@APP_NAME@/$(APP_NAME)/g' $(STAGING_ARMADA)/metadata.yaml
+	sed -i 's/@APP_VERSION@/$(APP_VERSION)/g' $(STAGING_ARMADA)/metadata.yaml
+	sed -i 's/@HELM_REPO@/$(HELM_REPO)/g' $(STAGING_ARMADA)/metadata.yaml
+
 	# Copy the plugins: installed in the buildroot
-	mkdir -p $(STAGING)/plugins
-	cp /plugins/$(APP_NAME)/*.whl $(STAGING)/plugins
-	# Create the app package.
-	cd $(STAGING) && find . -type f ! -name '*.md5' -print0 | xargs -0 md5sum > checksum.md5
-	tar cfz $(APP_TARBALL) -C $(STAGING)/ .
+	mkdir -p $(STAGING_ARMADA)/plugins
+	cp /plugins/$(APP_NAME)/*.whl $(STAGING_ARMADA)/plugins
+
+	# Create the armada app package
+	cd $(STAGING_ARMADA) && find . -type f ! -name '*.md5' -print0 | xargs -0 md5sum > checksum.md5
+	tar cfz $(APP_TARBALL_ARMADA) -C $(STAGING_ARMADA)/ .
+
 	# Cleanup staging
-	rm -rf $(STAGING)
+	rm -rf $(STAGING_ARMADA)
+
+	############
+	#  FLUXCD  #
+	############
+	mkdir -p fluxcd
+	cd fluxcd ; \
+	tar xvfz ../$(FLUXCD_NGINX_PKG) ; \
+	rm helm-charts/Makefile ; \
+	mv -f helm-charts/* .
+
+	# Apply the daemonset tolerations patch to fluxcd
+	cd fluxcd ; patch --no-backup-if-mismatch --fuzz=0 -p1 < ../files/0001-add-toleration-fluxcd.patch ; \
+
+	# Host a server for the helm charts.
+	cd fluxcd ; chartmuseum --debug --port=8879 --context-path='/charts' --storage="local" \
+		--storage-local-rootdir="." &
+	sleep 2
+	helm repo add local http://localhost:8879/charts
+
+	# Create the TGZ file.
+	cp files/Makefile fluxcd/charts
+	cd fluxcd/charts && make ingress-nginx
+
+	# Terminate the helm chart server.
+	pkill chartmuseum
+
+	# Setup the staging directory.
+	mkdir -p $(STAGING_FLUXCD)
+	cp files/metadata.yaml  $(STAGING_FLUXCD)
+	mkdir -p $(STAGING_FLUXCD)/charts
+	cp fluxcd/charts/*.tgz $(STAGING_FLUXCD)/charts
+
+	# Populate metadata.
+	sed -i 's/@APP_NAME@/$(APP_NAME)/g' $(STAGING_FLUXCD)/metadata.yaml
+	sed -i 's/@APP_VERSION@/$(APP_VERSION)/g' $(STAGING_FLUXCD)/metadata.yaml
+	sed -i 's/@HELM_REPO@/$(HELM_REPO)/g' $(STAGING_FLUXCD)/metadata.yaml
+
+	# Copy the plugins: installed in the buildroot
+	mkdir -p $(STAGING_FLUXCD)/plugins
+	cp /plugins/$(APP_NAME)/*.whl $(STAGING_FLUXCD)/plugins
+
+	cp -R fluxcd-manifests $(STAGING_FLUXCD)/
+
+	# calculate checksum of all files in app_staging
+	cd $(STAGING_FLUXCD) && find . -type f ! -name '*.md5' -print0 | xargs -0 md5sum > checksum.md5
+	tar cfz $(APP_TARBALL_FLUXCD) -C $(STAGING_FLUXCD)/ .
+
+	# Cleanup staging
+	rm -rf $(STAGING_FLUXCD)
 
 override_dh_auto_install:
 	# Install the app tar file.
 	install -d -m 755 $(APP_FOLDER)
-	install -p -D -m 755 $(APP_TARBALL) $(APP_FOLDER)
+	install -p -D -m 755 $(APP_TARBALL_ARMADA) $(APP_FOLDER)
+	install -p -D -m 755 $(APP_TARBALL_FLUXCD) $(APP_FOLDER)
 
 override_dh_auto_test:
 
