@@ -10,8 +10,8 @@ export MINOR_PATCH = $(shell echo $(DEB_VERSION) | cut -f 2 -d '.')
 
 export APP_NAME = nginx-ingress-controller
 export APP_VERSION = $(MAJOR).$(MINOR_PATCH)
-export APP_TARBALL_ARMADA = $(APP_NAME)-$(APP_VERSION).tgz
-export APP_TARBALL_FLUXCD = $(APP_NAME)-fluxcd-$(APP_VERSION).tgz
+export APP_TARBALL_ARMADA = $(APP_NAME)-armada-$(APP_VERSION).tgz
+export APP_TARBALL_FLUXCD = $(APP_NAME)-$(APP_VERSION).tgz
 export HELM_REPO = stx-platform
 export STAGING_ARMADA = staging-armada
 export STAGING_FLUXCD = staging-fluxcd
