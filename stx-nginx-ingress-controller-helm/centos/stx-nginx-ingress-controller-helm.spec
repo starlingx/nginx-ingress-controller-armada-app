@@ -25,19 +25,12 @@ URL: unknown
 
 Source0: %{name}-%{version}.tar.gz
 
-Source1: repositories.yaml
-Source2: index.yaml
-Source3: Makefile
-
-Source5: helm-charts-ingress-nginx-%{armada_nginx_version}.tar.gz
-
 # fluxcd specific source items
-Source6: helm-charts-ingress-nginx-%{fluxcd_nginx_version}.tar.gz
+Source1: helm-charts-ingress-nginx-%{fluxcd_nginx_version}.tar.gz
 
 BuildArch: noarch
 
-Patch01: 0001-add-toleration-armada.patch
-Patch02: 0001-add-toleration-fluxcd.patch
+Patch01: 0001-add-toleration-fluxcd.patch
 
 BuildRequires: helm
 BuildRequires: chartmuseum
@@ -48,21 +41,12 @@ BuildRequires: python-k8sapp-nginx-ingress-controller-wheels
 StarlingX Nginx Ingress Controller Application FluxCD Helm Charts
 
 %prep
-%setup 
-
-cd %{_builddir}
-/usr/bin/tar xfv %{SOURCE5}
-cd helm-charts
-%patch01 -p1
-
+%setup
 # set up fluxcd tar source
 cd %{_builddir}
-rm -rf fluxcd
-/usr/bin/mkdir -p fluxcd
-cd %{_builddir}/fluxcd
-/usr/bin/tar xfv %{SOURCE6}
-cd %{_builddir}/fluxcd/helm-charts
-%patch02 -p1
+/usr/bin/tar xfv %{SOURCE1}
+cd helm-charts
+%patch01 -p1
 
 %build
 # Host a server for the charts
@@ -72,14 +56,9 @@ sleep 2
 helm repo add local http://localhost:8879/charts
 
 # Create the tgz file for armada
-cp %{SOURCE3} charts
-cd charts
-make ingress-nginx
-
-# Create the tgz file for fluxcd
-cd %{_builddir}/fluxcd/helm-charts
-cp %{SOURCE3} charts
-cd charts
+cd %{_builddir}/stx-nginx-ingress-controller-helm-1.1
+cp files/Makefile %{_builddir}/helm-charts/charts
+cd %{_builddir}/helm-charts/charts
 make ingress-nginx
 
 # Terminate helm server (the last backgrounded task)
@@ -93,7 +72,7 @@ kill %1
 mkdir -p %{app_staging}
 cd %{_builddir}/stx-nginx-ingress-controller-helm-%{version}
 cp files/metadata.yaml %{app_staging}
-cp manifests/nginx_ingress_controller_manifest.yaml %{app_staging}
+cp -Rv fluxcd-manifests %{app_staging}/
 mkdir -p %{app_staging}/charts
 
 cd %{_builddir}/helm-charts
@@ -108,14 +87,6 @@ sed -i 's/@HELM_REPO@/%{helm_repo}/g' %{app_staging}/metadata.yaml
 # Copy the plugins: installed in the buildroot
 mkdir -p %{app_staging}/plugins
 cp /plugins/%{app_name}/*.whl %{app_staging}/plugins
-
-# package fluxcd
-rm -f %{app_staging}/nginx_ingress_controller_manifest.yaml
-rm -f %{app_staging}/charts/*.tgz
-rm -f %{SOURCE6}
-cp %{_builddir}/fluxcd/helm-charts/charts/*.tgz %{app_staging}/charts
-cd %{_builddir}/stx-nginx-ingress-controller-helm-1.1
-cp -Rv fluxcd-manifests %{app_staging}/
 
 find . -type f ! -name '*.md5' -print0 | xargs -0 md5sum > checksum.md5
 tar -zcf %{_builddir}/%{app_tarball_fluxcd} -C %{app_staging}/ .

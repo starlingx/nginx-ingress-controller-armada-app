@@ -11,7 +11,7 @@ FLUXCD_TAR="$CHART_TAR_NAME-$FLUXCD_NGINX_VERSION.tar.gz"
 COPY_LIST=" \
     ${CGCS_BASE}/downloads/$ARMADA_TAR \
     ${CGCS_BASE}/downloads/$FLUXCD_TAR \
-    $PKG_BASE/$SRC_DIR/files/* \
+    $PKG_BASE/$SRC_DIR/files/*.patch \
 "
 
 TIS_PATCH_VER=PKG_GITREVCOUNT
