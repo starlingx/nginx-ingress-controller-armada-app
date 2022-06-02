@@ -29,6 +29,9 @@ controller:
   hostNetwork: true
   livenessProbe:
     initialDelaySeconds: 30
+  resources:
+    requests:
+      cpu: 0
   readinessProbe:
     initialDelaySeconds: 30
   admissionWebhooks:
@@ -43,6 +46,14 @@ controller:
         - key: "node-role.kubernetes.io/master"
           operator: "Exists"
           effect: "NoSchedule"
+    createSecretJob:
+      resources:
+        requests:
+          cpu: 0
+    patchWebhookJob:
+      resources:
+        requests:
+          cpu: 0
   extraVolumes:
     - name: pod-tmp
       emptyDir: {}
@@ -58,6 +69,9 @@ defaultBackend:
     node-role.kubernetes.io/master: ""
   service:
     type: ""
+  resources:
+    requests:
+      cpu: 0
   livenessProbe:
     initialDelaySeconds: 30
   readinessProbe:
