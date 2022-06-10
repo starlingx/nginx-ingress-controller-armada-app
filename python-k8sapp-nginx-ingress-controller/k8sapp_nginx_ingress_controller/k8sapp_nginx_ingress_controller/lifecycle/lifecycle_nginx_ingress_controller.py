@@ -141,7 +141,7 @@ class NginxIngressControllerAppLifecycleOperator(base.AppLifecycleOperator):
             return
 
         webhook_name = webhook.metadata.name
-        app_op._kube.kube_delete_validating_webhook_configuration(webhook_name)
+        self._delete_webhook_configuration(app_op, webhook_name)
 
         dbapi_instance = app_op._dbapi
         db_app = dbapi_instance.kube_app_get(app.name)
@@ -189,16 +189,28 @@ class NginxIngressControllerAppLifecycleOperator(base.AppLifecycleOperator):
                 app_constants.HELM_CHART_INGRESS_NGINX, "admission-webhook"
             )
         )
-        webhooks = app_op._kube.kube_get_validating_webhook_configurations_by_selector(
-            label_selector, ""
+
+        # pylint: disable=fixme
+        # FIXME(outbrito): Workaround to deal with k8s upvesion to >=1.22, remove when the
+        # kubernetes-client is upversioned
+        webhook_as_list = app_op._kube.list_custom_resources(
+            'admissionregistration.k8s.io',
+            'v1',
+            'validatingwebhookconfigurations',
+            label_selector=label_selector
         )
 
-        if len(webhooks) > 1:
+        if len(webhook_as_list) > 1:
             raise exception.LifecycleSemanticCheckException(
                 "Multiple Validating Webhook Configurations found for nginx ingress controller"
             )
-        if webhooks:
-            return webhooks[0]
+        if webhook_as_list:
+            # FIXME(outbrito): Transparently returning an older version of the object
+            api_client = app_op._kube._get_kubernetesclient_admission_registration().api_client
+            return api_client._ApiClient__deserialize(webhook_as_list[0], 'V1beta1ValidatingWebhookConfiguration')
+
+    def _delete_webhook_configuration(self, app_op, webhook_name):
+        app_op._kube.kube_delete_validating_webhook_configuration(webhook_name)
 
     def _recreate_webhook_configuration(self, app_op, app):
         webhook = self._get_webhook_configuration(app_op)
