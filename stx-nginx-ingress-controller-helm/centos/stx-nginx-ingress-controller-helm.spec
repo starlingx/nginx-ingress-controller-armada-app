@@ -56,7 +56,7 @@ sleep 2
 helm repo add local http://localhost:8879/charts
 
 # Create the tgz file for armada
-cd %{_builddir}/stx-nginx-ingress-controller-helm-1.1
+cd %{_builddir}/stx-nginx-ingress-controller-helm-%{version}
 cp files/Makefile %{_builddir}/helm-charts/charts
 cd %{_builddir}/helm-charts/charts
 make ingress-nginx
