@@ -15,6 +15,6 @@ Package: stx-nginx-ingress-controller-helm
 Section: libs
 Architecture: any
 Depends: ${misc:Depends}
-Description: StarlingX Nginx Ingress Controller Application FluxCD/Armada Helm Charts
- This package contains Fluxcd/Armada helm charts for the nginx ingress
+Description: StarlingX Nginx Ingress Controller Application FluxCD Helm Charts
+ This package contains Fluxcd helm charts for the nginx ingress
  controller application.

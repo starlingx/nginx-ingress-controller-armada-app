@@ -1,10 +1,7 @@
 # Application tunables (maps to metadata)
 %global app_name nginx-ingress-controller
 %global helm_repo stx-platform
-%global armada_nginx_version 0.41.2
 %global fluxcd_nginx_version 1.1.1
-
-%global armada_folder  /usr/lib/armada
 
 # Install location
 %global app_folder /usr/local/share/applications/helm
@@ -14,7 +11,6 @@
 %global toolkit_version 0.1.0
 
 Summary: StarlingX Nginx Ingress Controller Application FluxCD Helm Charts
-#StarlingX Nginx Ingress Controller Application Armada Helm Charts
 Name: stx-nginx-ingress-controller-helm
 Version: 1.1
 Release: %{tis_patch_ver}%{?_tis_dist}
@@ -25,7 +21,6 @@ URL: unknown
 
 Source0: %{name}-%{version}.tar.gz
 
-# fluxcd specific source items
 Source1: helm-charts-ingress-nginx-%{fluxcd_nginx_version}.tar.gz
 
 BuildArch: noarch
@@ -55,7 +50,7 @@ chartmuseum --debug --port=8879 --context-path='/charts' --storage="local" --sto
 sleep 2
 helm repo add local http://localhost:8879/charts
 
-# Create the tgz file for armada
+# Make Chart
 cd %{_builddir}/stx-nginx-ingress-controller-helm-%{version}
 cp files/Makefile %{_builddir}/helm-charts/charts
 cd %{_builddir}/helm-charts/charts
