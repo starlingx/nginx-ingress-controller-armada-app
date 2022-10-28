@@ -1,1 +1,3 @@
 # Override upstream constraints based on StarlingX load
+docker==4.1.0
+kubernetes==12.0.1

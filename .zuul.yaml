@@ -60,6 +60,7 @@
     parent: tox
     description: |
       Run flake8 test for k8sapp-nginx-ingress-controller
+    nodeset: ubuntu-focal
     files:
       - python-k8sapp-nginx-ingress-controller/*
     vars:
@@ -88,6 +89,7 @@
     parent: tox
     description: |
       Run bandit test for k8sapp-nginx-ingress-controller
+    nodeset: ubuntu-focal
     files:
       - python-k8sapp-nginx-ingress-controller/*
     vars:
