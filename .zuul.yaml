@@ -32,10 +32,10 @@
       - starlingx/update
       - starlingx/utilities
     files:
-      - python-k8sapp-nginx-ingress-controller/*
+      - python3-k8sapp-nginx-ingress-controller/*
     vars:
       tox_envlist: py27
-      tox_extra_args: -c python-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
+      tox_extra_args: -c python3-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
 
 - job:
     name: k8sapp-nginx-ingress-controller-tox-py39
@@ -49,11 +49,11 @@
       - starlingx/update
       - starlingx/utilities
     files:
-      - python-k8sapp-nginx-ingress-controller/*
+      - python3-k8sapp-nginx-ingress-controller/*
     vars:
       tox_envlist: py39
       python_version: 3.9
-      tox_extra_args: -c python-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
+      tox_extra_args: -c python3-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
 
 - job:
     name: k8sapp-nginx-ingress-controller-tox-flake8
@@ -62,10 +62,10 @@
       Run flake8 test for k8sapp-nginx-ingress-controller
     nodeset: ubuntu-focal
     files:
-      - python-k8sapp-nginx-ingress-controller/*
+      - python3-k8sapp-nginx-ingress-controller/*
     vars:
       tox_envlist: flake8
-      tox_extra_args: -c python-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
+      tox_extra_args: -c python3-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
 
 - job:
     name: k8sapp-nginx-ingress-controller-tox-pylint
@@ -79,10 +79,10 @@
       - starlingx/update
       - starlingx/utilities
     files:
-      - python-k8sapp-nginx-ingress-controller/*
+      - python3-k8sapp-nginx-ingress-controller/*
     vars:
       tox_envlist: pylint
-      tox_extra_args: -c python-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
+      tox_extra_args: -c python3-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
 
 - job:
     name: k8sapp-nginx-ingress-controller-tox-bandit
@@ -91,10 +91,10 @@
       Run bandit test for k8sapp-nginx-ingress-controller
     nodeset: ubuntu-focal
     files:
-      - python-k8sapp-nginx-ingress-controller/*
+      - python3-k8sapp-nginx-ingress-controller/*
     vars:
       tox_envlist: bandit
-      tox_extra_args: -c python-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
+      tox_extra_args: -c python3-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
 
 - job:
     name: stx-nginx-ingress-controller-armada-app-upload-git-mirror

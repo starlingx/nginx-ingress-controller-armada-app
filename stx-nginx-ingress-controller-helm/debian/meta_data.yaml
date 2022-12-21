@@ -9,4 +9,6 @@ dl_files:
     md5sum: 9fa3de1800175a4f7dfa890bf9d376c9
 revision:
   dist: $STX_DIST
-  PKG_GITREVCOUNT: true
+  GITREVCOUNT:
+    SRC_DIR: ${MY_REPO}/stx/nginx-ingress-controller-armada-app
+    BASE_SRCREV: 7d46af2312307344d714ae4e3a184fb577a210e8
