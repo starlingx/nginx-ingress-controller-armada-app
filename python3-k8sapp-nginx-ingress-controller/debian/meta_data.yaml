@@ -6,4 +6,4 @@ revision:
   dist: $STX_DIST
   GITREVCOUNT:
     SRC_DIR: ${MY_REPO}/stx/nginx-ingress-controller-armada-app
-    BASE_SRCREV: 7d46af2312307344d714ae4e3a184fb577a210e8
+    BASE_SRCREV: 4b8dd90cbf87e23d249c2c2faae0968733689c03
