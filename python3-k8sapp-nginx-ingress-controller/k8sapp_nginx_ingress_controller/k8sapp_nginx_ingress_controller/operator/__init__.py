@@ -13,7 +13,7 @@ class quoted_str(str):
 
 # force strings to be single-quoted to avoid interpretation as numeric values
 def quoted_presenter(dumper, data):
-    return dumper.represent_scalar(u'tag:yaml.org,2002:str', data, style="'")
+    return dumper.represent_scalar('tag:yaml.org,2002:str', data, style="'")
 
 
 yaml.add_representer(quoted_str, quoted_presenter)

@@ -34,4 +34,3 @@ class IngressNginxArmadaManifestOperator(base.ArmadaManifestOperator):
         :param dbapi: DB api object
         :param mode: mode to control how to apply the application manifest
         """
-        pass

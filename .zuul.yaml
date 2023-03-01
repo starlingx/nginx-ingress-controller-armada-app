@@ -3,7 +3,6 @@
     check:
       jobs:
         - openstack-tox-linters
-        - k8sapp-nginx-ingress-controller-tox-py27
         - k8sapp-nginx-ingress-controller-tox-py39
         - k8sapp-nginx-ingress-controller-tox-flake8
         - k8sapp-nginx-ingress-controller-tox-pylint
@@ -11,7 +10,6 @@
     gate:
       jobs:
         - openstack-tox-linters
-        - k8sapp-nginx-ingress-controller-tox-py27
         - k8sapp-nginx-ingress-controller-tox-py39
         - k8sapp-nginx-ingress-controller-tox-flake8
         - k8sapp-nginx-ingress-controller-tox-pylint
@@ -19,23 +17,6 @@
     post:
       jobs:
         - stx-nginx-ingress-controller-armada-app-upload-git-mirror
-
-- job:
-    name: k8sapp-nginx-ingress-controller-tox-py27
-    parent: tox
-    description: |
-      Run py27 test for k8sapp-nginx-ingress-controller
-    nodeset: ubuntu-xenial
-    required-projects:
-      - starlingx/config
-      - starlingx/fault
-      - starlingx/update
-      - starlingx/utilities
-    files:
-      - python3-k8sapp-nginx-ingress-controller/*
-    vars:
-      tox_envlist: py27
-      tox_extra_args: -c python3-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
 
 - job:
     name: k8sapp-nginx-ingress-controller-tox-py39
@@ -72,7 +53,7 @@
     parent: tox
     description: |
       Run pylint test for k8sapp-nginx-ingress-controller
-    nodeset: ubuntu-xenial
+    nodeset: ubuntu-focal
     required-projects:
       - starlingx/config
       - starlingx/fault
