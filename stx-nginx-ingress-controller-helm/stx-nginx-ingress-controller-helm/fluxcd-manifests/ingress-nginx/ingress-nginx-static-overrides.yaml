@@ -1,5 +1,5 @@
 #
-# Copyright (c) 2022 Wind River Systems, Inc.
+# Copyright (c) 2022-2023 Wind River Systems, Inc.
 #
 # SPDX-License-Identifier: Apache-2.0
 #
@@ -10,8 +10,8 @@ controller:
   image:
     # cleans the default digest value since sysinv changes the digest when pushing the image to the local registry
     digest: ""
-    repository: k8s.gcr.io/ingress-nginx/controller
-    tag: v1.1.1
+    repository: registry.k8s.io/ingress-nginx/controller
+    tag: v1.7.0
   daemonset:
     useHostPort: false
   nodeSelector:
@@ -40,8 +40,8 @@ controller:
     patch:
       image:
         digest: ""
-        repository: k8s.gcr.io/ingress-nginx/kube-webhook-certgen
-        tag: v1.1.1
+        repository: registry.k8s.io/ingress-nginx/kube-webhook-certgen
+        tag: v20230312-helm-chart-4.5.2-28-g66a760794
       tolerations:
         - key: "node-role.kubernetes.io/master"
           operator: "Exists"
@@ -60,13 +60,20 @@ controller:
   extraVolumes:
     - name: pod-tmp
       emptyDir: {}
+    - name: pod-tmp-nginx
+      emptyDir: {}
   extraVolumeMounts:
     - name: pod-tmp
       mountPath: /tmp
+    - name: pod-tmp-nginx
+      mountPath: /tmp/nginx
+  opentelemetry:
+    enabled: false
+    image: registry.k8s.io/ingress-nginx/opentelemetry:v20230312-helm-chart-4.5.2-28-g66a760794
 defaultBackend:
   image:
     digest: ""
-    repository: k8s.gcr.io/defaultbackend-amd64
+    repository: registry.k8s.io/defaultbackend-amd64
     tag: "1.5"
   nodeSelector:
     node-role.kubernetes.io/control-plane: ""

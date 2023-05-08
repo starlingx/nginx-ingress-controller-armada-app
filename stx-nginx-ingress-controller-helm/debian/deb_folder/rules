@@ -13,7 +13,7 @@ export APP_VERSION = $(RELEASE)-$(REVISION)
 export APP_TARBALL_FLUXCD = $(APP_NAME)-$(APP_VERSION).tgz
 export HELM_REPO = stx-platform
 export STAGING_FLUXCD = staging-fluxcd
-export FLUXCD_NGINX_PKG = helm-charts-ingress-nginx-1.1.1.tar.gz
+export FLUXCD_NGINX_PKG = helm-charts-ingress-nginx-1.7.0.tar.gz
 
 %:
 	dh $@
