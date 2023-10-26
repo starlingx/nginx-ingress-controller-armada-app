@@ -3,10 +3,10 @@ debname: stx-nginx-ingress-controller-helm
 debver: 1.0-1
 src_path: stx-nginx-ingress-controller-helm
 dl_files:
-  helm-charts-ingress-nginx-1.7.0.tar.gz:
+  helm-charts-ingress-nginx-1.9.3.tar.gz:
     topdir: helm-charts
-    url: https://github.com/kubernetes/ingress-nginx/archive/controller-v1.7.0.tar.gz
-    md5sum: e30e752d70740ca888792d534cc960f1
+    url: https://github.com/kubernetes/ingress-nginx/archive/controller-v1.9.3.tar.gz
+    md5sum: e26752857ac5f083a7b0fcba7ec9a81f
 revision:
   dist: $STX_DIST
   GITREVCOUNT:
