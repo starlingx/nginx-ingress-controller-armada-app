@@ -6,6 +6,8 @@
 
 imagePullSecrets: [{"name": "default-registry-key"}]
 controller:
+  # This fixes CVE-2023-5044: https://github.com/kubernetes/ingress-nginx/issues/10572
+  enableAnnotationValidations: true
   kind: DaemonSet
   image:
     # cleans the default digest value since sysinv changes the digest when pushing the image to the local registry
@@ -23,6 +25,8 @@ controller:
     # See https://bugs.launchpad.net/starlingx/+bug/1823803
     # Note quotes are necessary.
     worker-processes: '1'
+    # This fixes CVE-2022-4886: https://github.com/kubernetes/ingress-nginx/issues/10570
+    strict-validate-path-type: true
   scope:
     enabled: false
   service:
