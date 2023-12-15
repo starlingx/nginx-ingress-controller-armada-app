@@ -6,6 +6,7 @@
         - k8sapp-nginx-ingress-controller-tox-py39
         - k8sapp-nginx-ingress-controller-tox-flake8
         - k8sapp-nginx-ingress-controller-tox-pylint
+        - k8sapp-nginx-ingress-controller-tox-metadata
         - k8sapp-nginx-ingress-controller-tox-bandit
     gate:
       jobs:
@@ -13,6 +14,7 @@
         - k8sapp-nginx-ingress-controller-tox-py39
         - k8sapp-nginx-ingress-controller-tox-flake8
         - k8sapp-nginx-ingress-controller-tox-pylint
+        - k8sapp-nginx-ingress-controller-tox-metadata
         - k8sapp-nginx-ingress-controller-tox-bandit
     post:
       jobs:
@@ -20,7 +22,7 @@
 
 - job:
     name: k8sapp-nginx-ingress-controller-tox-py39
-    parent: tox-py39
+    parent: openstack-tox-py39
     description: |
       Run py39 test for k8sapp-nginx-ingress-controller
     nodeset: debian-bullseye
@@ -29,53 +31,88 @@
       - starlingx/fault
       - starlingx/update
       - starlingx/utilities
+      - starlingx/root
     files:
       - python3-k8sapp-nginx-ingress-controller/*
     vars:
-      tox_envlist: py39
-      python_version: 3.9
       tox_extra_args: -c python3-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
+      tox_constraints_file: '{{ ansible_user_dir }}/src/opendev.org/starlingx/root/build-tools/requirements/debian/upper-constraints.txt'
 
 - job:
     name: k8sapp-nginx-ingress-controller-tox-flake8
     parent: tox
     description: |
       Run flake8 test for k8sapp-nginx-ingress-controller
-    nodeset: ubuntu-focal
+    nodeset: debian-bullseye
+    required-projects:
+      - starlingx/config
+      - starlingx/fault
+      - starlingx/update
+      - starlingx/utilities
+      - starlingx/root
     files:
       - python3-k8sapp-nginx-ingress-controller/*
     vars:
       tox_envlist: flake8
       tox_extra_args: -c python3-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
+      tox_constraints_file: '{{ ansible_user_dir }}/src/opendev.org/starlingx/root/build-tools/requirements/debian/upper-constraints.txt'
+
+- job:
+    name: k8sapp-nginx-ingress-controller-tox-metadata
+    parent: tox
+    description: |
+      Run metadata test for k8sapp-nginx-ingress-controller
+    nodeset: debian-bullseye
+    required-projects:
+      - starlingx/config
+      - starlingx/fault
+      - starlingx/update
+      - starlingx/utilities
+      - starlingx/root
+    files:
+      - python3-k8sapp-nginx-ingress-controller/*
+    vars:
+      tox_envlist: metadata
+      tox_extra_args: -c python3-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
+      tox_constraints_file: '{{ ansible_user_dir }}/src/opendev.org/starlingx/root/build-tools/requirements/debian/upper-constraints.txt'
 
 - job:
     name: k8sapp-nginx-ingress-controller-tox-pylint
     parent: tox
     description: |
       Run pylint test for k8sapp-nginx-ingress-controller
-    nodeset: ubuntu-focal
+    nodeset: debian-bullseye
     required-projects:
       - starlingx/config
       - starlingx/fault
       - starlingx/update
       - starlingx/utilities
+      - starlingx/root
     files:
       - python3-k8sapp-nginx-ingress-controller/*
     vars:
       tox_envlist: pylint
       tox_extra_args: -c python3-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
+      tox_constraints_file: '{{ ansible_user_dir }}/src/opendev.org/starlingx/root/build-tools/requirements/debian/upper-constraints.txt'
 
 - job:
     name: k8sapp-nginx-ingress-controller-tox-bandit
     parent: tox
     description: |
       Run bandit test for k8sapp-nginx-ingress-controller
-    nodeset: ubuntu-focal
+    nodeset: debian-bullseye
+    required-projects:
+      - starlingx/config
+      - starlingx/fault
+      - starlingx/update
+      - starlingx/utilities
+      - starlingx/root
     files:
       - python3-k8sapp-nginx-ingress-controller/*
     vars:
       tox_envlist: bandit
       tox_extra_args: -c python3-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/tox.ini
+      tox_constraints_file: '{{ ansible_user_dir }}/src/opendev.org/starlingx/root/build-tools/requirements/debian/upper-constraints.txt'
 
 - job:
     name: stx-nginx-ingress-controller-armada-app-upload-git-mirror
