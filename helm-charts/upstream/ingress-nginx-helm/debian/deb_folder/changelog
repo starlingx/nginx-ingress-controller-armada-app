@@ -1,0 +1,6 @@
+ingress-nginx-helm (4.8-2) unstable; urgency=medium
+
+  * Initial release.
+
+ --  Joshua Reed <joshua.reed@windriver.com>  Fri, 16 Feb 2024 14:54:00 +0000
+

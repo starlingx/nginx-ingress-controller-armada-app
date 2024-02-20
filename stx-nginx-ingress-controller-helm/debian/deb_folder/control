@@ -3,9 +3,8 @@ Section: libs
 Priority: optional
 Maintainer: StarlingX Developers <starlingx-discuss@lists.starlingx.io>
 Build-Depends: debhelper-compat (= 13),
- chartmuseum,
  helm,
- procps,
+ ingress-nginx-helm,
  python3-k8sapp-nginx-ingress-controller,
  python3-k8sapp-nginx-ingress-controller-wheels,
  build-info

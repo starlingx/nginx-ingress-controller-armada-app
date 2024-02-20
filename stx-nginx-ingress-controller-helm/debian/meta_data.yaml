@@ -1,12 +1,7 @@
 ---
 debname: stx-nginx-ingress-controller-helm
-debver: 1.0-1
+debver: 1.0-2
 src_path: stx-nginx-ingress-controller-helm
-dl_files:
-  helm-charts-ingress-nginx-1.9.3.tar.gz:
-    topdir: helm-charts
-    url: https://mirror.starlingx.windriver.com/mirror/debian/github.com/kubernetes/ingress-nginx/archive/controller-v1.9.3.tar.gz
-    sha256sum: 1047a9edd5d4ccf9a8b1a7941d3083a31987f32890a16b05862c49fb842e49bb
 revision:
   dist: $STX_DIST
   GITREVCOUNT:
