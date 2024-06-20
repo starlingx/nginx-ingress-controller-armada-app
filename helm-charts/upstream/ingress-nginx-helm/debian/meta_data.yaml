@@ -1,10 +1,10 @@
 ---
 debname: ingress-nginx-helm
-debver: 4.8-2
+debver: 4.10-1
 dl_path:
-  name: controller-v1.9.3.tar.gz
-  url: https://mirror.starlingx.windriver.com/mirror/debian/github.com/kubernetes/ingress-nginx/archive/controller-v1.9.3.tar.gz
-  sha256sum: 1047a9edd5d4ccf9a8b1a7941d3083a31987f32890a16b05862c49fb842e49bb
+  name: ingress-nginx-helm-chart-4.10.1.tar.gz
+  url: https://github.com/kubernetes/ingress-nginx/archive/refs/tags/helm-chart-4.10.1.tar.gz
+  sha256sum: 07348d9b68e38d5fd59afae7a5671a05bbeca7e97e90af41020d9a2c0f0e0ffe
 src_files:
   - ingress-nginx-helm/files/Makefile
 revision:

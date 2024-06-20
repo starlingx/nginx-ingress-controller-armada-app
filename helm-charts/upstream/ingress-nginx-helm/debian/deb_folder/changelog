@@ -1,6 +1,11 @@
+ingress-nginx-helm (4.10-1) unstable; urgency=medium
+
+  * App upversion
+
+ --  amantri <ayyappa.mantri@windriver.com>  Thu Jun 20 14:17:33 2024 -0400
+
 ingress-nginx-helm (4.8-2) unstable; urgency=medium
 
   * Initial release.
 
  --  Joshua Reed <joshua.reed@windriver.com>  Fri, 16 Feb 2024 14:54:00 +0000
-

@@ -13,7 +13,7 @@ controller:
     # cleans the default digest value since sysinv changes the digest when pushing the image to the local registry
     digest: ""
     repository: registry.k8s.io/ingress-nginx/controller
-    tag: v1.9.3
+    tag: v1.10.1
   daemonset:
     useHostPort: false
   nodeSelector:
@@ -46,7 +46,7 @@ controller:
       image:
         digest: ""
         repository: registry.k8s.io/ingress-nginx/kube-webhook-certgen
-        tag: v20231011-8b53cabe0
+        tag: v1.4.1
       tolerations:
         - key: "node-role.kubernetes.io/master"
           operator: "Exists"
