@@ -18,7 +18,6 @@ controller:
     useHostPort: false
   nodeSelector:
     node-role.kubernetes.io/control-plane: ""
-  allowSnippetAnnotations: true
   config:
     # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/
     nginx-status-ipv4-whitelist: 0.0.0.0/0
