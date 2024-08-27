@@ -32,6 +32,7 @@ controller:
     type: ""
   hostNetwork: true
   livenessProbe:
+    timeoutSeconds: 5
     initialDelaySeconds: 30
   resources:
     requests:
