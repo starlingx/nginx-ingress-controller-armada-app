@@ -1,6 +1,6 @@
-From dd376b4c04c311756a302cbaf672cf9fb3f7e903 Mon Sep 17 00:00:00 2001
+From ed2afa03c3d0584cca145a79981cb0ad1f3f86ee Mon Sep 17 00:00:00 2001
 From: amantri <ayyappa.mantri@windriver.com>
-Date: Thu, 11 Jul 2024 14:09:28 -0400
+Date: Thu, 3 Oct 2024 10:54:27 -0400
 Subject: [PATCH] Add toleration to daemonset
 
 ---
@@ -8,10 +8,10 @@ Subject: [PATCH] Add toleration to daemonset
  1 file changed, 9 insertions(+), 1 deletion(-)
 
 diff --git a/charts/ingress-nginx/values.yaml b/charts/ingress-nginx/values.yaml
-index 68f8b58..ed6d68c 100644
+index 92735d2..db33be5 100644
 --- a/charts/ingress-nginx/values.yaml
 +++ b/charts/ingress-nginx/values.yaml
-@@ -226,12 +226,20 @@ controller:
+@@ -240,12 +240,20 @@ controller:
    # -- Node tolerations for server scheduling to nodes with taints
    ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
    ##
