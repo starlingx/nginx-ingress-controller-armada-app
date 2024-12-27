@@ -40,6 +40,7 @@ controller:
       memory: 0
   readinessProbe:
     initialDelaySeconds: 30
+    timeoutSeconds: 5
   admissionWebhooks:
     # default port 8443 conflicts with lighttpd using https
     port: 5443
