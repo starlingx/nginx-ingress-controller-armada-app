@@ -13,6 +13,7 @@ from k8sapp_nginx_ingress_controller.lifecycle.lifecycle_nginx_ingress_controlle
 from sysinv.common import constants
 from sysinv.db import api as db_api
 from sysinv.helm import lifecycle_hook
+from sysinv.helm.lifecycle_constants import LifecycleConstants
 from sysinv.tests.db import base
 from sysinv.tests.db import utils as dbutils
 
@@ -43,9 +44,9 @@ class NginxICTestCase(base.DbTestCase):
 
         self.hook_info = lifecycle_hook.LifecycleHookInfo()
         self.hook_info.init(
-            constants.APP_LIFECYCLE_MODE_AUTO,
-            constants.APP_LIFECYCLE_TYPE_RESOURCE,
-            constants.APP_LIFECYCLE_TIMING_PRE,
+            LifecycleConstants.APP_LIFECYCLE_MODE_AUTO,
+            LifecycleConstants.APP_LIFECYCLE_TYPE_RESOURCE,
+            LifecycleConstants.APP_LIFECYCLE_TIMING_PRE,
             constants.APP_APPLY_OP)
 
         self.old_overrides = {

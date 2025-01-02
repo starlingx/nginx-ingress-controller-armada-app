@@ -16,6 +16,7 @@ from sysinv.common import constants
 from sysinv.common import exception
 from sysinv.db import api as dbapi
 from sysinv.helm import lifecycle_base as base
+from sysinv.helm.lifecycle_constants import LifecycleConstants
 from sysinv.helm.lifecycle_hook import LifecycleHookInfo
 from sysinv.helm import lifecycle_utils
 
@@ -52,24 +53,24 @@ class NginxIngressControllerAppLifecycleOperator(base.AppLifecycleOperator):
         :param hook_info: LifecycleHookInfo object
 
         """
-        if hook_info.lifecycle_type == constants.APP_LIFECYCLE_TYPE_RESOURCE:
+        if hook_info.lifecycle_type == LifecycleConstants.APP_LIFECYCLE_TYPE_RESOURCE:
             if hook_info.operation == constants.APP_APPLY_OP:
-                if hook_info.relative_timing == constants.APP_LIFECYCLE_TIMING_PRE:
+                if hook_info.relative_timing == LifecycleConstants.APP_LIFECYCLE_TIMING_PRE:
                     return self.pre_apply(app_op, app, hook_info)
 
-        if hook_info.lifecycle_type == constants.APP_LIFECYCLE_TYPE_OPERATION:
+        if hook_info.lifecycle_type == LifecycleConstants.APP_LIFECYCLE_TYPE_OPERATION:
             if hook_info.operation == constants.APP_BACKUP:
-                if hook_info.relative_timing == constants.APP_LIFECYCLE_TIMING_PRE:
+                if hook_info.relative_timing == LifecycleConstants.APP_LIFECYCLE_TIMING_PRE:
                     return self.pre_backup(app_op, app)
 
-        if hook_info.lifecycle_type == constants.APP_LIFECYCLE_TYPE_OPERATION:
+        if hook_info.lifecycle_type == LifecycleConstants.APP_LIFECYCLE_TYPE_OPERATION:
             if hook_info.operation == constants.APP_BACKUP:
-                if hook_info.relative_timing == constants.APP_LIFECYCLE_TIMING_POST:
+                if hook_info.relative_timing == LifecycleConstants.APP_LIFECYCLE_TIMING_POST:
                     return self.post_backup(app_op, app)
 
-        if hook_info.lifecycle_type == constants.APP_LIFECYCLE_TYPE_OPERATION:
+        if hook_info.lifecycle_type == LifecycleConstants.APP_LIFECYCLE_TYPE_OPERATION:
             if hook_info.operation == constants.APP_RESTORE:
-                if hook_info.relative_timing == constants.APP_LIFECYCLE_TIMING_POST:
+                if hook_info.relative_timing == LifecycleConstants.APP_LIFECYCLE_TIMING_POST:
                     return self.post_restore(app_op, app)
 
         super(NginxIngressControllerAppLifecycleOperator, self).app_lifecycle_actions(
@@ -252,7 +253,7 @@ class NginxIngressControllerAppLifecycleOperator(base.AppLifecycleOperator):
         lifecycle_hook_info = LifecycleHookInfo()
         lifecycle_hook_info.operation = constants.APP_APPLY_OP
         app_op.perform_app_apply(
-            app._kube_app, constants.APP_LIFECYCLE_MODE_AUTO, lifecycle_hook_info
+            app._kube_app, LifecycleConstants.APP_LIFECYCLE_MODE_AUTO, lifecycle_hook_info
         )
 
         if BACKUP_ADMISSION_WEBHOOK_OVERRIDE in original_overrides:
