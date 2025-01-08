@@ -4,20 +4,21 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 
-imagePullSecrets: [{"name": "default-registry-key"}]
+imagePullSecrets:
+  - name: default-registry-key
 controller:
   # This fixes CVE-2023-5044: https://github.com/kubernetes/ingress-nginx/issues/10572
   enableAnnotationValidations: true
   kind: DaemonSet
   image:
     # cleans the default digest value since sysinv changes the digest when pushing the image to the local registry
-    digest: ""
+    digest: ''
     repository: registry.k8s.io/ingress-nginx/controller
-    tag: v1.11.1
+    tag: v1.12.0
   daemonset:
     useHostPort: false
   nodeSelector:
-    node-role.kubernetes.io/control-plane: ""
+    node-role.kubernetes.io/control-plane: ''
   config:
     # https://kubernetes.github.io/ingress-nginx/user-guide/nginx-configuration/configmap/
     nginx-status-ipv4-whitelist: 0.0.0.0/0
@@ -29,7 +30,7 @@ controller:
   scope:
     enabled: false
   service:
-    type: ""
+    type: ''
   hostNetwork: true
   livenessProbe:
     timeoutSeconds: 5
@@ -46,16 +47,16 @@ controller:
     port: 5443
     patch:
       image:
-        digest: ""
+        digest: ''
         repository: registry.k8s.io/ingress-nginx/kube-webhook-certgen
-        tag: v1.4.1
+        tag: v1.5.0
       tolerations:
-        - key: "node-role.kubernetes.io/master"
-          operator: "Exists"
-          effect: "NoSchedule"
-        - key: "node-role.kubernetes.io/control-plane"
-          operator: "Exists"
-          effect: "NoSchedule"
+        - key: node-role.kubernetes.io/master
+          operator: Exists
+          effect: NoSchedule
+        - key: node-role.kubernetes.io/control-plane
+          operator: Exists
+          effect: NoSchedule
     createSecretJob:
       resources:
         requests:
@@ -74,18 +75,15 @@ controller:
       mountPath: /tmp
     - name: pod-tmp-nginx
       mountPath: /tmp/nginx
-  opentelemetry:
-    enabled: false
-    image: registry.k8s.io/ingress-nginx/opentelemetry:v20230721-3e2062ee5
 defaultBackend:
   image:
-    digest: ""
+    digest: ''
     repository: registry.k8s.io/defaultbackend-amd64
-    tag: "1.5"
+    tag: '1.5'
   nodeSelector:
-    node-role.kubernetes.io/control-plane: ""
+    node-role.kubernetes.io/control-plane: ''
   service:
-    type: ""
+    type: ''
   resources:
     requests:
       cpu: 0

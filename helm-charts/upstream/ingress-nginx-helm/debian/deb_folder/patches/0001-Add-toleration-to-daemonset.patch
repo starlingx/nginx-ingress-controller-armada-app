@@ -1,38 +1,27 @@
-From ed2afa03c3d0584cca145a79981cb0ad1f3f86ee Mon Sep 17 00:00:00 2001
-From: amantri <ayyappa.mantri@windriver.com>
-Date: Thu, 3 Oct 2024 10:54:27 -0400
+From 063f307b93a415be61315cf49f9079032d310f22 Mon Sep 17 00:00:00 2001
+From: Gleb Aronsky <gleb.aronsky@windriver.com>
+Date: Wed, 8 Jan 2025 09:43:21 -0800
 Subject: [PATCH] Add toleration to daemonset
 
 ---
- charts/ingress-nginx/values.yaml | 10 +++++++++-
- 1 file changed, 9 insertions(+), 1 deletion(-)
+ charts/ingress-nginx/values.yaml | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
 diff --git a/charts/ingress-nginx/values.yaml b/charts/ingress-nginx/values.yaml
-index 92735d2..db33be5 100644
+index 0c1a0ca24..635fc929c 100644
 --- a/charts/ingress-nginx/values.yaml
 +++ b/charts/ingress-nginx/values.yaml
-@@ -240,12 +240,20 @@ controller:
+@@ -249,7 +249,9 @@ controller:
    # -- Node tolerations for server scheduling to nodes with taints
    ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
    ##
 -  tolerations: []
-+  # tolerations: []
++  tolerations:
++    - {"key": "node-role.kubernetes.io/control-plane", "operator": "Exists", "effect": "NoSchedule"}
++    - {"key": "node-role.kubernetes.io/master", "operator": "Exists", "effect": "NoSchedule"}
    #  - key: "key"
    #    operator: "Equal|Exists"
    #    value: "value"
-   #    effect: "NoSchedule|PreferNoSchedule|NoExecute(1.6 only)"
-
-+  tolerations:
-+    - key: "node-role.kubernetes.io/master"
-+      operator: "Exists"
-+      effect: "NoSchedule"
-+    - key: "node-role.kubernetes.io/control-plane"
-+      operator: "Exists"
-+      effect: "NoSchedule"
-+
-   # -- Affinity and anti-affinity rules for server scheduling to nodes
-   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
-   ##
 --
-2.25.1
+2.34.1
 
