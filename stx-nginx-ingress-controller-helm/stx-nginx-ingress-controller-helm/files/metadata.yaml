@@ -11,6 +11,7 @@ supported_k8s_version:
   minimum: 1.24.4
 
 behavior:
+  platform_managed_app: yes
   forbidden_manual_operations:
     - delete
     - remove
