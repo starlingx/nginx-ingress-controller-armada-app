@@ -14,3 +14,5 @@ behavior:
   forbidden_manual_operations:
     - delete
     - remove
+
+class: critical
