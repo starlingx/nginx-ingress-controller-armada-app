@@ -1,3 +1,9 @@
+ingress-nginx-helm (4.13-3) unstable; urgency=medium
+
+  * App upversion
+
+ -- Aronsky, Gleb <Gleb.Aronsky@windriver.com>  Wed, 08 Oct 2025 16:56:27 +0000
+
 ingress-nginx-helm (4.12-2) unstable; urgency=medium
 
   * App upversion
