@@ -1,0 +1,47 @@
+ingress-nginx-helm (4.14-0) unstable; urgency=medium
+
+  * App upversion
+
+ -- gdinizcr <gabriel.DinizCremel@windriver.com>  Thu, 11 Dec 2025 15:08:23 +0000
+
+ingress-nginx-helm (4.13-3) unstable; urgency=medium
+
+  * App upversion
+
+ -- Aronsky, Gleb <Gleb.Aronsky@windriver.com>  Wed, 08 Oct 2025 16:56:27 +0000
+
+ingress-nginx-helm (4.12-2) unstable; urgency=medium
+
+  * App upversion
+
+ --  ealmeida <Eduardo.AlmeidadosSantos@windriver.com>  Tue 04 Jun 2025 09:00:00 -0300
+
+ingress-nginx-helm (4.12-1) unstable; urgency=medium
+
+  * App upversion
+
+ --  ealmeida <Eduardo.AlmeidadosSantos@windriver.com>  Tue 08 Apr 2025 08:03:32 -0300
+
+ingress-nginx-helm (4.12-0) unstable; urgency=medium
+
+  * App upversion
+
+ --  ealmeida <Eduardo.AlmeidadosSantos@windriver.com>  Tue 04 Feb 2025 10:15:00 -0300
+
+ingress-nginx-helm (4.11-1) unstable; urgency=medium
+
+  * App upversion
+
+ --  amantri <ayyappa.mantri@windriver.com>  Thu 03 Oct 2024 10:33:50 AM EDT
+
+ingress-nginx-helm (4.10-1) unstable; urgency=medium
+
+  * App upversion
+
+ --  amantri <ayyappa.mantri@windriver.com>  Thu Jun 20 14:17:33 2024 -0400
+
+ingress-nginx-helm (4.8-2) unstable; urgency=medium
+
+  * Initial release.
+
+ --  Joshua Reed <joshua.reed@windriver.com>  Fri, 16 Feb 2024 14:54:00 +0000

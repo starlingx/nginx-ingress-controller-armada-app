@@ -28,15 +28,13 @@ class IngressNginxHelm(base.BaseHelm):
 
     def get_overrides(self, namespace=None):
         LOG.info("Generating system_overrides for %s chart." % self.CHART)
-        ip_family = "IPv6" if self._is_ipv6_cluster_service() else "IPv4"
 
         overrides = {
             app_constants.HELM_NS_NGINX_INGRESS_CONTROLLER: {
                 'controller': {
                     'service': {
-                        'ipFamilies': [
-                            ip_family
-                        ]
+                        'ipFamilyPolicy': 'PreferDualStack',
+                        'ipFamilies': []
                     }
                 },
                 'fullnameOverride': 'ic-nginx-ingress-ingress-nginx'

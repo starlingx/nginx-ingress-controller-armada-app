@@ -1,0 +1,31 @@
+From 2e97a1e9b701cc0a5b96f5e21438872855f0d349 Mon Sep 17 00:00:00 2001
+From: gdinizcr <gabriel.DinizCremel@windriver.com>
+Date: Thu, 11 Dec 2025 12:08:23 -0300
+Subject: [PATCH] Add toleration to daemonset
+
+---
+ charts/ingress-nginx/values.yaml | 8 +++++++-
+ 1 file changed, 7 insertions(+), 1 deletion(-)
+
+diff --git a/charts/ingress-nginx/values.yaml b/charts/ingress-nginx/values.yaml
+index 21fb0f4..66e27d6 100644
+--- a/charts/ingress-nginx/values.yaml
++++ b/charts/ingress-nginx/values.yaml
+@@ -251,7 +251,13 @@ controller:
+   # -- Node tolerations for server scheduling to nodes with taints
+   ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/
+   ##
+-  tolerations: []
++  tolerations:
++    - key: node-role.kubernetes.io/control-plane
++      operator: Exists
++      effect: NoSchedule
++    - key: node-role.kubernetes.io/master
++      operator: Exists
++      effect: NoSchedule
+   #  - key: "key"
+   #    operator: "Equal|Exists"
+   #    value: "value"
+-- 
+2.34.1
+
