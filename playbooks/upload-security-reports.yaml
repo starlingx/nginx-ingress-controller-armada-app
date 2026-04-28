@@ -1,0 +1,20 @@
+- hosts: all
+  tasks:
+    - name: Check security directory exists
+      stat:
+        path: "{{ zuul.project.src_dir }}/python3-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/UTCoverage/"
+      register: security_dir_stat
+    - name: Upload security reports
+      synchronize:
+        src: "{{ zuul.project.src_dir }}/python3-k8sapp-nginx-ingress-controller/k8sapp_nginx_ingress_controller/UTCoverage/"
+        dest: "{{ zuul.executor.log_root }}/security/"
+        mode: pull
+      when: security_dir_stat.stat.exists
+    - name: Return security report URL
+      zuul_return:
+        data:
+          zuul:
+            artifacts:
+              - name: "Security Report"
+                url: "security/security_report.txt"
+      when: security_dir_stat.stat.exists
