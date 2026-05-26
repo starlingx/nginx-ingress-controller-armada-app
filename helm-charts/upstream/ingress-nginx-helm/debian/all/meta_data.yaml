@@ -1,9 +1,9 @@
 debname: ingress-nginx-helm
-debver: 4.14-3
+debver: 4.15-1
 dl_path:
-  name: ingress-nginx-helm-chart-4.14.3.tar.gz
-  sha256sum: 59638968d82717b965e8343fd6f40cd45e9c3154943e0db22f1e90e1f411fdfb
-  url: https://github.com/kubernetes/ingress-nginx/archive/refs/tags/helm-chart-4.14.3.tar.gz
+  name: ingress-nginx-helm-chart-4.15.1.tar.gz
+  sha256sum: 0be17a86f7475e047134af2e3ff0b22b801cb7759629c94b5676bc36c7863557
+  url: https://github.com/kubernetes/ingress-nginx/archive/refs/tags/helm-chart-4.15.1.tar.gz
 revision:
   GITREVCOUNT:
     BASE_SRCREV: 0eceb0371b546979204e7c7b88416a2b641aac29

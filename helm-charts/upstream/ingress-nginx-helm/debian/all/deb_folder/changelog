@@ -1,3 +1,9 @@
+ingress-nginx-helm (4.15-1) unstable; urgency=medium
+
+  * App upversion
+
+ -- gdinizcr <gabriel.DinizCremel@windriver.com>  Thu, 16 Apr 2026 13:31:57 +0000
+
 ingress-nginx-helm (4.14-3) unstable; urgency=medium
 
   * App upversion

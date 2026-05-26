@@ -1,6 +1,6 @@
-From a7db1c3aee4fe92b4479cddc3a9bc1531d72fe26 Mon Sep 17 00:00:00 2001
+From ad0210e922784bd211b62588704c12adb04c1a01 Mon Sep 17 00:00:00 2001
 From: gdinizcr <gabriel.DinizCremel@windriver.com>
-Date: Wed, 4 Feb 2026 18:36:19 -0300
+Date: Thu, 16 Apr 2026 10:31:56 -0300
 Subject: [PATCH] Add toleration to daemonset
 
 ---
@@ -8,7 +8,7 @@ Subject: [PATCH] Add toleration to daemonset
  1 file changed, 7 insertions(+), 1 deletion(-)
 
 diff --git a/charts/ingress-nginx/values.yaml b/charts/ingress-nginx/values.yaml
-index 7316a8a..d92074d 100644
+index 70679fe..0a4aa2e 100644
 --- a/charts/ingress-nginx/values.yaml
 +++ b/charts/ingress-nginx/values.yaml
 @@ -251,7 +251,13 @@ controller:
