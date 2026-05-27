@@ -12,6 +12,9 @@ supported_k8s_version:
 
 behavior:
   platform_managed_app: yes
+  evaluate_reapply:
+    triggers:
+      - type: runtime-apply-puppet
   forbidden_manual_operations:
     - delete
     - remove
