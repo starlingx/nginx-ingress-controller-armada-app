@@ -8,6 +8,7 @@
 
 """System inventory App lifecycle operator."""
 
+import os
 from time import time
 
 from k8sapp_nginx_ingress_controller.common import constants as app_constants
@@ -53,6 +54,15 @@ class NginxIngressControllerAppLifecycleOperator(base.AppLifecycleOperator):
         :param hook_info: LifecycleHookInfo object
 
         """
+        if (hook_info.lifecycle_type == LifecycleConstants.APP_LIFECYCLE_TYPE_SEMANTIC_CHECK
+                and hook_info.relative_timing == LifecycleConstants.APP_LIFECYCLE_TIMING_PRE
+                and hook_info.operation == constants.APP_APPLY_OP):
+            if (os.path.isfile(constants.ANSIBLE_BOOTSTRAP_FLAG)
+                    and hook_info.mode == LifecycleConstants.APP_LIFECYCLE_MODE_AUTO):
+                raise exception.LifecycleSemanticCheckException(
+                    "Auto-apply disabled during bootstrap for %s." % app.name)
+            return
+
         if hook_info.lifecycle_type == LifecycleConstants.APP_LIFECYCLE_TYPE_RESOURCE:
             if hook_info.operation == constants.APP_APPLY_OP:
                 if hook_info.relative_timing == LifecycleConstants.APP_LIFECYCLE_TIMING_PRE:

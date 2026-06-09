@@ -12,6 +12,7 @@ supported_k8s_version:
 
 behavior:
   platform_managed_app: yes
+  desired_state: applied
   evaluate_reapply:
     triggers:
       - type: runtime-apply-puppet
