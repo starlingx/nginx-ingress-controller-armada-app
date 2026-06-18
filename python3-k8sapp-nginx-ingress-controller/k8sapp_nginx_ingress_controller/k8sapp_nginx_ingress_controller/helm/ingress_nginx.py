@@ -26,6 +26,15 @@ IANA_TO_OPENSSL_CIPHER_MAP = {
         'ECDHE-ECDSA-CHACHA20-POLY1305',
 }
 
+# TLS 1.3 ciphers use IANA names directly and must be configured via
+# nginx 'ssl-ciphersuites' (SSL_CTX_set_ciphersuites), not 'ssl-ciphers'
+# (SSL_CTX_set_cipher_list) which only accepts TLS 1.2 ciphers.
+TLS13_CIPHERS = {
+    'TLS_AES_256_GCM_SHA384',
+    'TLS_AES_128_GCM_SHA256',
+    'TLS_CHACHA20_POLY1305_SHA256',
+}
+
 
 class IngressNginxHelm(base.BaseHelm):
     """Class to encapsulate helm operations for nginx"""
@@ -42,7 +51,7 @@ class IngressNginxHelm(base.BaseHelm):
     }
 
     def _get_tls_config(self):
-        """Get TLS ssl-protocols and ssl-ciphers from service parameters."""
+        """Get TLS ssl-protocols, ssl-ciphers, and ssl-ciphersuites."""
         tls_min_version = \
             constants.SERVICE_PARAM_PLATFORM_TLS_MIN_VERSION_DEFAULT
         tls_cipher_suite = \
@@ -69,29 +78,40 @@ class IngressNginxHelm(base.BaseHelm):
         else:
             ssl_protocols = 'TLSv1.2 TLSv1.3'
 
-        openssl_ciphers = []
+        tls12_ciphers = []
+        tls13_ciphers = []
         for iana_name in tls_cipher_suite.split(','):
             iana_name = iana_name.strip()
             if not iana_name:
                 continue
-            openssl_name = IANA_TO_OPENSSL_CIPHER_MAP.get(
-                iana_name, iana_name)
-            openssl_ciphers.append(openssl_name)
+            if iana_name in TLS13_CIPHERS:
+                tls13_ciphers.append(iana_name)
+            else:
+                openssl_name = IANA_TO_OPENSSL_CIPHER_MAP.get(
+                    iana_name, iana_name)
+                tls12_ciphers.append(openssl_name)
 
-        return ssl_protocols, ':'.join(openssl_ciphers)
+        return (ssl_protocols,
+                ':'.join(tls12_ciphers),
+                ':'.join(tls13_ciphers))
 
     def get_overrides(self, namespace=None):
         LOG.info("Generating system_overrides for %s chart." % self.CHART)
 
-        ssl_protocols, ssl_ciphers = self._get_tls_config()
+        ssl_protocols, ssl_ciphers, ssl_ciphersuites = self._get_tls_config()
+
+        config = {
+            'ssl-protocols': ssl_protocols,
+        }
+        if ssl_ciphers:
+            config['ssl-ciphers'] = ssl_ciphers
+        if ssl_ciphersuites:
+            config['ssl-ciphersuites'] = ssl_ciphersuites
 
         overrides = {
             app_constants.HELM_NS_NGINX_INGRESS_CONTROLLER: {
                 'controller': {
-                    'config': {
-                        'ssl-protocols': ssl_protocols,
-                        'ssl-ciphers': ssl_ciphers,
-                    },
+                    'config': config,
                     'service': {
                         'ipFamilyPolicy': 'PreferDualStack',
                         'ipFamilies': []
